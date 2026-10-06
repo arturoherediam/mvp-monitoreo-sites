@@ -1,0 +1,16 @@
+# Ejemplo de ACL por rol. Copiar a /etc/mosquitto/acl en la Orange Pi.
+# Los usuarios y contraseñas se crean con mosquitto_passwd y NO se suben al repo.
+
+user admin
+topic readwrite #
+
+user dashboard
+topic read site/#
+
+user nodo_rack
+topic write site/datos
+topic write site/estado/rack-01
+
+user nodo_ambiente
+topic write site/datos
+topic write site/estado/amb-01

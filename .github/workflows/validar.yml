@@ -1,0 +1,31 @@
+name: Validar
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ejemplos-json:
+    name: Ejemplos JSON contra el contrato
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install jsonschema
+      - run: python3 tools/validar_ejemplos.py
+
+  secretos:
+    name: Búsqueda de secretos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Gratis en repositorios públicos de cuentas personales.
+      # Si el repo está en una organización, gitleaks-action pide GITLEAKS_LICENSE.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

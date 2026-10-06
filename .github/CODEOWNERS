@@ -1,0 +1,13 @@
+# Cada ruta pide revisión automática a sus responsables.
+# Requiere que cada persona haya aceptado la invitación al repositorio.
+
+/firmware/common/           @priscilasosa @LuisMho06
+/firmware/nodo-rack/        @LuisMho06
+/firmware/nodo-ambiente/    @priscilasosa
+/gateway/                   @arturoherediam
+/hardware/pcb-sensores/     @sebastianHzAquino @DiegoLop3z
+/hardware/pcb-nodo-rack/    @sebastianHzAquino @DiegoLop3z
+/hardware/pcb-nodo-ambiente/ @sebastianHzAquino @DiegoLop3z
+/hardware/carcasas/         @DiegoLop3z
+/docs/acuerdos/             @arturoherediam @LuisMho06 @priscilasosa
+/tools/                     @arturoherediam

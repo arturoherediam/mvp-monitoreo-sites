@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "type": "rack",
+  "node_id": "rack-01",
+  "seq": 1043,
+  "uptime_s": 3127,
+  "positions": [
+    {
+      "id": "A",
+      "temp": 24.33,
+      "hum": 55.7,
+      "dew_point": 14.9,
+      "rate_c_min": 0.4,
+      "flame": false
+    },
+    {
+      "id": "B",
+      "temp": null,
+      "hum": null,
+      "dew_point": null,
+      "rate_c_min": null,
+      "err": [
+        "sht41_B_timeout"
+      ]
+    }
+  ]
+}

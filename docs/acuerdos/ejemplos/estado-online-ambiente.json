@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "node_id": "amb-01",
+  "status": "online",
+  "fw": "1.0.0",
+  "sensors": {
+    "sht41": true,
+    "pms5003": true
+  }
+}

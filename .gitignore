@@ -1,0 +1,36 @@
+# --- Secretos (el repositorio es público) ---
+**/secrets.h
+.env
+.env.*
+*.pem
+*.key
+gateway/mosquitto/passwd
+gateway/mosquitto/passwd.*
+gateway/mosquitto/*.passwd
+**/flows_cred.json
+**/*_cred.json
+**/.config.*.json
+
+# --- Datos locales ---
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+
+# --- PlatformIO ---
+.pio/
+.vscode/
+
+# --- Respaldos de herramientas de diseño ---
+*-backups/
+*.bak
+*.lck
+_autosave-*
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Sistema ---
+.DS_Store
+Thumbs.db

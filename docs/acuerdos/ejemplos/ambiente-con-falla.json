@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "type": "ambiente",
+  "node_id": "amb-01",
+  "seq": 89,
+  "uptime_s": 917,
+  "temp": 29.4,
+  "hum": 71.2,
+  "dew_point": 23.6,
+  "rate_c_min": 0.0,
+  "pm1_0": null,
+  "pm2_5": null,
+  "pm10": null,
+  "err": [
+    "pms_sin_trama"
+  ]
+}

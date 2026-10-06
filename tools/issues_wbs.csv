@@ -1,0 +1,496 @@
+title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
+[1.1] Kickoff: ratificar acuerdos y reparto,"**ID WBS:** 1.1
+**Responsable:** Todos
+**Duración:** 1 días hábiles
+**Predecesoras:** ninguna
+**Inicio planeado:** 2026-10-02
+**Fin planeado:** 2026-10-02
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-1-arranque,Fase 1: Arranque,Todos,2026-10-02,2026-10-02,1,ninguna,6
+"[1.2] Repo base, docs/acuerdos y ejemplos JSON","**ID WBS:** 1.2
+**Responsable:** Arturo
+**Duración:** 1 días hábiles
+**Predecesoras:** 1.1
+**Inicio planeado:** 2026-10-03
+**Fin planeado:** 2026-10-03
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-1-arranque,Fase 1: Arranque,Arturo,2026-10-03,2026-10-03,1,1.1,12
+"[2.1] Pinout, voltajes (PMS5003 a 4.5–5.5 V) y conectores","**ID WBS:** 2.1
+**Responsable:** Sebastián
+**Duración:** 3 días hábiles
+**Predecesoras:** 1.1
+**Inicio planeado:** 2026-10-05
+**Fin planeado:** 2026-10-07
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Sebastián,2026-10-05,2026-10-07,3,1.1,6
+"[2.2] PCB de sensores (SHT41, espacio YG1006, puerto al nodo rack)","**ID WBS:** 2.2
+**Responsable:** Sebastián
+**Duración:** 2 días hábiles
+**Predecesoras:** 2.1
+**Inicio planeado:** 2026-10-08
+**Fin planeado:** 2026-10-09
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Sebastián,2026-10-08,2026-10-09,2,2.1,6
+"[2.3] PCB nodo rack (ESP32, TCA9548A en socket, OLED, puertos a PCB de sensores)","**ID WBS:** 2.3
+**Responsable:** Sebastián
+**Duración:** 3 días hábiles
+**Predecesoras:** 2.1, 2.2
+**Inicio planeado:** 2026-10-12
+**Fin planeado:** 2026-10-14
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Sebastián,2026-10-12,2026-10-14,3,"2.1, 2.2",6
+[2.4] Esquemático del nodo ambiente (apoyo de Diego),"**ID WBS:** 2.4
+**Responsable:** Diego
+**Duración:** 1 días hábiles
+**Predecesoras:** 2.1
+**Inicio planeado:** 2026-10-08
+**Fin planeado:** 2026-10-08
+**Holgura:** 8 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Diego,2026-10-08,2026-10-08,1,2.1,8
+[2.5] Layout y DRC del nodo ambiente,"**ID WBS:** 2.5
+**Responsable:** Sebastián
+**Duración:** 2 días hábiles
+**Predecesoras:** 2.4
+**Inicio planeado:** 2026-10-15
+**Fin planeado:** 2026-10-16
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Sebastián,2026-10-15,2026-10-16,2,2.4,4
+"[2.6] Revisión cruzada de los 3 diseños (firmware, carcasa, eléctrico)","**ID WBS:** 2.6
+**Responsable:** Sebastián + Diego
+**Duración:** 1 días hábiles
+**Predecesoras:** 2.2, 2.3, 2.5
+**Inicio planeado:** 2026-10-19
+**Fin planeado:** 2026-10-19
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Sebastián + Diego,2026-10-19,2026-10-19,1,"2.2, 2.3, 2.5",4
+"[2.7] Pedido y fabricación de PCB (2 unidades de cada diseño, un lote)","**ID WBS:** 2.7
+**Responsable:** Diego (espera)
+**Duración:** 8 días hábiles
+**Predecesoras:** 2.6
+**Inicio planeado:** 2026-10-20
+**Fin planeado:** 2026-10-29
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Diego (espera),2026-10-20,2026-10-29,8,2.6,4
+[2.8] Ensamble y soldadura (through-hole y sockets),"**ID WBS:** 2.8
+**Responsable:** Diego
+**Duración:** 1 días hábiles
+**Predecesoras:** 2.7
+**Inicio planeado:** 2026-10-30
+**Fin planeado:** 2026-10-30
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Diego,2026-10-30,2026-10-30,1,2.7,4
+"[2.9] Prueba eléctrica (continuidad, 3V3/5V, escaneo I2C)","**ID WBS:** 2.9
+**Responsable:** Diego + Sebastián
+**Duración:** 2 días hábiles
+**Predecesoras:** 2.8
+**Inicio planeado:** 2026-11-02
+**Fin planeado:** 2026-11-03
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Diego + Sebastián,2026-11-02,2026-11-03,2,2.8,4
+[3.1] Diseño CAD de carcasas (dimensiones provisionales),"**ID WBS:** 3.1
+**Responsable:** Diego
+**Duración:** 6 días hábiles
+**Predecesoras:** 2.1
+**Inicio planeado:** 2026-10-09
+**Fin planeado:** 2026-10-16
+**Holgura:** 13 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-3-carcasas,Fase 3: Carcasas,Diego,2026-10-09,2026-10-16,6,2.1,13
+[3.2] Ajuste de carcasas a dimensiones finales,"**ID WBS:** 3.2
+**Responsable:** Diego
+**Duración:** 1 días hábiles
+**Predecesoras:** 2.6, 3.1
+**Inicio planeado:** 2026-10-20
+**Fin planeado:** 2026-10-20
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-3-carcasas,Fase 3: Carcasas,Diego,2026-10-20,2026-10-20,1,"2.6, 3.1",12
+[3.3] Impresión/fabricación de carcasas,"**ID WBS:** 3.3
+**Responsable:** Diego (máquina)
+**Duración:** 4 días hábiles
+**Predecesoras:** 3.2
+**Inicio planeado:** 2026-10-21
+**Fin planeado:** 2026-10-26
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-3-carcasas,Fase 3: Carcasas,Diego (máquina),2026-10-21,2026-10-26,4,3.2,12
+[3.4] Prueba de ajuste de PCB y cableado en carcasa,"**ID WBS:** 3.4
+**Responsable:** Diego
+**Duración:** 1 días hábiles
+**Predecesoras:** 2.8, 3.3
+**Inicio planeado:** 2026-11-04
+**Fin planeado:** 2026-11-04
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-3-carcasas,Fase 3: Carcasas,Diego,2026-11-04,2026-11-04,1,"2.8, 3.3",6
+[4.1] Broker + Node-RED en laptop con el contrato v1,"**ID WBS:** 4.1
+**Responsable:** Arturo
+**Duración:** 2 días hábiles
+**Predecesoras:** 1.2
+**Inicio planeado:** 2026-10-05
+**Fin planeado:** 2026-10-06
+**Holgura:** 15 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-05,2026-10-06,2,1.2,15
+[4.2] Simulador de nodos (publica JSON de prueba),"**ID WBS:** 4.2
+**Responsable:** Arturo
+**Duración:** 1 días hábiles
+**Predecesoras:** 1.2
+**Inicio planeado:** 2026-10-07
+**Fin planeado:** 2026-10-07
+**Holgura:** 14 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-07,2026-10-07,1,1.2,14
+[4.3] Dashboard v1 con datos simulados,"**ID WBS:** 4.3
+**Responsable:** Arturo
+**Duración:** 4 días hábiles
+**Predecesoras:** 4.1, 4.2
+**Inicio planeado:** 2026-10-08
+**Fin planeado:** 2026-10-13
+**Holgura:** 14 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-08,2026-10-13,4,"4.1, 4.2",14
+"[4.5] Validar hotspot en Orange Pi (AP 2.4 GHz, IP fija, DHCP)","**ID WBS:** 4.5
+**Responsable:** Arturo
+**Duración:** 2 días hábiles
+**Predecesoras:** 4.4
+**Inicio planeado:** 2026-10-14
+**Fin planeado:** 2026-10-15
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-14,2026-10-15,2,4.4,12
+"[4.6] Instalar y asegurar gateway (Mosquitto+ACL, firewall, Node-RED, SQLite)","**ID WBS:** 4.6
+**Responsable:** Arturo
+**Duración:** 3 días hábiles
+**Predecesoras:** 4.5, 4.3
+**Inicio planeado:** 2026-10-16
+**Fin planeado:** 2026-10-20
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-16,2026-10-20,3,"4.5, 4.3",12
+[4.7] Índice de dosis acumulada + API de viento,"**ID WBS:** 4.7
+**Responsable:** Arturo
+**Duración:** 4 días hábiles
+**Predecesoras:** 4.3
+**Inicio planeado:** 2026-10-29
+**Fin planeado:** 2026-11-03
+**Holgura:** 10 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-29,2026-11-03,4,4.3,10
+[4.8] Histórico en SQLite con escritura agrupada,"**ID WBS:** 4.8
+**Responsable:** Arturo
+**Duración:** 2 días hábiles
+**Predecesoras:** 4.6
+**Inicio planeado:** 2026-10-23
+**Fin planeado:** 2026-10-26
+**Holgura:** 14 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-10-23,2026-10-26,2,4.6,14
+[4.9] ICS de la laptop (Ubuntu) y respaldo con hotspot del celular,"**ID WBS:** 4.9
+**Responsable:** Arturo
+**Duración:** 2 días hábiles
+**Predecesoras:** 4.6
+**Inicio planeado:** 2026-11-04
+**Fin planeado:** 2026-11-05
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-4-gateway,Fase 4: Gateway,Arturo,2026-11-04,2026-11-05,2,4.6,6
+[5.1] Compra de sensor de flama y de temperatura (3 oct),"**ID WBS:** 5.1
+**Responsable:** Luis Mario
+**Duración:** 1 días hábiles
+**Predecesoras:** 1.1
+**Inicio planeado:** 2026-10-03
+**Fin planeado:** 2026-10-03
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-5-nodo-rack,Fase 5: Nodo rack,Luis Mario,2026-10-03,2026-10-03,1,1.1,12
+[5.2] Banco de pruebas (ESP32+TCA9548A+2 SHT41+OLED+YG1006),"**ID WBS:** 5.2
+**Responsable:** Luis Mario
+**Duración:** 4 días hábiles
+**Predecesoras:** 1.2, 5.1
+**Inicio planeado:** 2026-10-05
+**Fin planeado:** 2026-10-08
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-5-nodo-rack,Fase 5: Nodo rack,Luis Mario,2026-10-05,2026-10-08,4,"1.2, 5.1",12
+"[5.3] Firmware v1 del nodo rack (mux, OLED, JSON, MQTT+LWT)","**ID WBS:** 5.3
+**Responsable:** Luis Mario
+**Duración:** 6 días hábiles
+**Predecesoras:** 5.2, 6.1
+**Inicio planeado:** 2026-10-09
+**Fin planeado:** 2026-10-16
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-5-nodo-rack,Fase 5: Nodo rack,Luis Mario,2026-10-09,2026-10-16,6,"5.2, 6.1",12
+"[5.4] Integrar YG1006 (GPIO, evento inmediato al broker)","**ID WBS:** 5.4
+**Responsable:** Luis Mario
+**Duración:** 2 días hábiles
+**Predecesoras:** 5.3
+**Inicio planeado:** 2026-10-19
+**Fin planeado:** 2026-10-20
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-5-nodo-rack,Fase 5: Nodo rack,Luis Mario,2026-10-19,2026-10-20,2,5.3,12
+[5.5] Prueba de flama con encendedor: distancia y protocolo repetible,"**ID WBS:** 5.5
+**Responsable:** Luis Mario
+**Duración:** 2 días hábiles
+**Predecesoras:** 5.4
+**Inicio planeado:** 2026-10-23
+**Fin planeado:** 2026-10-26
+**Holgura:** 10 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-5-nodo-rack,Fase 5: Nodo rack,Luis Mario,2026-10-23,2026-10-26,2,5.4,10
+[6.1] Librería común de firmware (ambos nodos),"**ID WBS:** 6.1
+**Responsable:** Priscila (revisa Luis Mario)
+**Duración:** 4 días hábiles
+**Predecesoras:** 1.2
+**Inicio planeado:** 2026-10-05
+**Fin planeado:** 2026-10-08
+**Holgura:** 12 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila (revisa Luis Mario),2026-10-05,2026-10-08,4,1.2,12
+[6.2] Banco de pruebas (ESP32+PMS5003+SHT41),"**ID WBS:** 6.2
+**Responsable:** Priscila
+**Duración:** 3 días hábiles
+**Predecesoras:** 1.2
+**Inicio planeado:** 2026-10-09
+**Fin planeado:** 2026-10-13
+**Holgura:** 11 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-10-09,2026-10-13,3,1.2,11
+"[6.3] Firmware v1 del nodo ambiente (UART PMS5003, SHT41, JSON, MQTT+LWT)","**ID WBS:** 6.3
+**Responsable:** Priscila
+**Duración:** 4 días hábiles
+**Predecesoras:** 6.1, 6.2
+**Inicio planeado:** 2026-10-14
+**Fin planeado:** 2026-10-19
+**Holgura:** 11 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-10-14,2026-10-19,4,"6.1, 6.2",11
+[6.4] Validación de sensores y recolección de datos,"**ID WBS:** 6.4
+**Responsable:** Priscila
+**Duración:** 2 días hábiles
+**Predecesoras:** 6.3
+**Inicio planeado:** 2026-10-23
+**Fin planeado:** 2026-10-26
+**Holgura:** 10 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-10-23,2026-10-26,2,6.3,10
+[6.5] Umbral inicial del índice de dosis (Arturo configura),"**ID WBS:** 6.5
+**Responsable:** Priscila
+**Duración:** 2 días hábiles
+**Predecesoras:** 6.4, 4.7
+**Inicio planeado:** 2026-11-10
+**Fin planeado:** 2026-11-11
+**Holgura:** 6 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-11-10,2026-11-11,2,"6.4, 4.7",6
+[7.1] E2E de desarrollo: nodos → broker en laptop → dashboard,"**ID WBS:** 7.1
+**Responsable:** Arturo, Luis, Priscila
+**Duración:** 2 días hábiles
+**Predecesoras:** 5.3, 6.3, 4.3
+**Inicio planeado:** 2026-10-21
+**Fin planeado:** 2026-10-22
+**Holgura:** 10 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,"Arturo, Luis, Priscila",2026-10-21,2026-10-22,2,"5.3, 6.3, 4.3",10
+[7.2] Migrar a la Orange Pi y probar con nodos reales,"**ID WBS:** 7.2
+**Responsable:** Arturo, Luis, Priscila
+**Duración:** 2 días hábiles
+**Predecesoras:** 4.6, 7.1
+**Inicio planeado:** 2026-10-27
+**Fin planeado:** 2026-10-28
+**Holgura:** 8 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,"Arturo, Luis, Priscila",2026-10-27,2026-10-28,2,"4.6, 7.1",8
+[7.4] Integración con PCB finales (flashear y probar ambos nodos),"**ID WBS:** 7.4
+**Responsable:** Luis, Priscila, Sebastián
+**Duración:** 3 días hábiles
+**Predecesoras:** 2.9, 7.2, 5.5, 6.4
+**Inicio planeado:** 2026-11-04
+**Fin planeado:** 2026-11-06
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,"Luis, Priscila, Sebastián",2026-11-04,2026-11-06,3,"2.9, 7.2, 5.5, 6.4",4
+[7.5] Integración en carcasas,"**ID WBS:** 7.5
+**Responsable:** Diego, Luis, Priscila
+**Duración:** 1 días hábiles
+**Predecesoras:** 7.4, 3.4
+**Inicio planeado:** 2026-11-09
+**Fin planeado:** 2026-11-09
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,"Diego, Luis, Priscila",2026-11-09,2026-11-09,1,"7.4, 3.4",4
+[7.6] Estabilidad 24 h y corte de energía (con PCB y carcasas),"**ID WBS:** 7.6
+**Responsable:** Arturo
+**Duración:** 2 días hábiles
+**Predecesoras:** 7.5, 4.8, 4.9
+**Inicio planeado:** 2026-11-10
+**Fin planeado:** 2026-11-11
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,Arturo,2026-11-10,2026-11-11,2,"7.5, 4.8, 4.9",4
+"[7.7] Pruebas de fallo (WiFi, reinicio de gateway, sin internet, flama)","**ID WBS:** 7.7
+**Responsable:** Arturo (apoyo de Luis y Priscila)
+**Duración:** 2 días hábiles
+**Predecesoras:** 7.6
+**Inicio planeado:** 2026-11-12
+**Fin planeado:** 2026-11-13
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,Arturo (apoyo de Luis y Priscila),2026-11-12,2026-11-13,2,7.6,4
+[7.8] Regresión final = congelamiento de funciones,"**ID WBS:** 7.8
+**Responsable:** Arturo, Luis, Priscila
+**Duración:** 1 días hábiles
+**Predecesoras:** 7.7, 6.5
+**Inicio planeado:** 2026-11-16
+**Fin planeado:** 2026-11-16
+**Holgura:** 4 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-7-integracion,Fase 7: Integración,"Arturo, Luis, Priscila",2026-11-16,2026-11-16,1,"7.7, 6.5",4
+[8.1] Documentación técnica por módulo,"**ID WBS:** 8.1
+**Responsable:** Todos
+**Duración:** 6 días hábiles
+**Predecesoras:** 7.2
+**Inicio planeado:** 2026-11-09
+**Fin planeado:** 2026-11-16
+**Holgura:** 1 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-09,2026-11-16,6,7.2,1
+"[8.2] Reporte final, diapositivas y manual de arranque (consolida Arturo)","**ID WBS:** 8.2
+**Responsable:** Todos
+**Duración:** 3 días hábiles
+**Predecesoras:** 8.1
+**Inicio planeado:** 2026-11-17
+**Fin planeado:** 2026-11-19
+**Holgura:** 1 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-17,2026-11-19,3,8.1,1
+[8.3] Ensayo general 1 (guion de 6 pasos),"**ID WBS:** 8.3
+**Responsable:** Todos
+**Duración:** 1 días hábiles
+**Predecesoras:** 7.8, 8.2
+**Inicio planeado:** 2026-11-23
+**Fin planeado:** 2026-11-23
+**Holgura:** 0 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-23,2026-11-23,1,"7.8, 8.2",0
+[8.4] Ensayo general 2 con cronómetro,"**ID WBS:** 8.4
+**Responsable:** Todos
+**Duración:** 1 días hábiles
+**Predecesoras:** 8.3
+**Inicio planeado:** 2026-11-24
+**Fin planeado:** 2026-11-24
+**Holgura:** 0 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-24,2026-11-24,1,8.3,0
+"[8.5] Stand, repuestos, microSD de respaldo y empaque","**ID WBS:** 8.5
+**Responsable:** Todos
+**Duración:** 1 días hábiles
+**Predecesoras:** 8.4
+**Inicio planeado:** 2026-11-25
+**Fin planeado:** 2026-11-25
+**Holgura:** 0 días hábiles
+
+## Criterio de terminado
+- [ ] (completar al ratificar el alcance en el kickoff)
+",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-25,2026-11-25,1,8.4,0

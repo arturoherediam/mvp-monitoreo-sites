@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "node_id": "rack-01",
+  "status": "online",
+  "fw": "1.0.0",
+  "sensors": {
+    "tca9548a": true,
+    "sht41_A": true,
+    "sht41_B": true
+  }
+}
