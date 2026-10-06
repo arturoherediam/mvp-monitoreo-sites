@@ -5,9 +5,9 @@
 /firmware/nodo-rack/        @LuisMho06
 /firmware/nodo-ambiente/    @priscilasosa
 /gateway/                   @arturoherediam
-/hardware/pcb-sensores/     @sebastianHzAquino @DiegoLop3z
-/hardware/pcb-nodo-rack/    @sebastianHzAquino @DiegoLop3z
-/hardware/pcb-nodo-ambiente/ @sebastianHzAquino @DiegoLop3z
+/hardware/pcb-sensores/     @sebastianhzaquino-cloud @DiegoLop3z
+/hardware/pcb-nodo-rack/    @sebastianhzaquino-cloud @DiegoLop3z
+/hardware/pcb-nodo-ambiente/ @sebastianhzaquino-cloud @DiegoLop3z
 /hardware/carcasas/         @DiegoLop3z
 /docs/acuerdos/             @arturoherediam @LuisMho06 @priscilasosa
 /tools/                     @arturoherediam
