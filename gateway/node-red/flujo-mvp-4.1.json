@@ -1,0 +1,136 @@
+[
+  {
+    "id": "mvp_tab",
+    "type": "tab",
+    "label": "MVP monitoreo 4.1",
+    "disabled": false,
+    "info": "Recibe site/datos y site/estado/+ del broker, valida el contrato v1 y muestra el resultado en la barra de depuración."
+  },
+  {
+    "id": "mvp_broker",
+    "type": "mqtt-broker",
+    "name": "Mosquitto local (usuario dashboard)",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "nodered-mvp",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "mvp_in_datos",
+    "type": "mqtt in",
+    "z": "mvp_tab",
+    "name": "site/datos",
+    "topic": "site/datos",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "mvp_validar"
+      ]
+    ]
+  },
+  {
+    "id": "mvp_in_estado",
+    "type": "mqtt in",
+    "z": "mvp_tab",
+    "name": "site/estado/+",
+    "topic": "site/estado/+",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 140,
+    "wires": [
+      [
+        "mvp_validar"
+      ]
+    ]
+  },
+  {
+    "id": "mvp_validar",
+    "type": "function",
+    "z": "mvp_tab",
+    "name": "Validar contrato v1",
+    "func": "// Valida el contrato JSON v1 (docs/acuerdos/contrato-json.md).\n// Salida 1: mensaje válido. Salida 2: mensaje rechazado.\nconst m = msg.payload;\nconst errores = [];\n\nif (typeof m !== 'object' || m === null || Array.isArray(m)) {\n    errores.push('el contenido no es un objeto JSON');\n} else {\n    if (m.schema !== 1) errores.push('schema debe ser 1');\n    if (typeof m.node_id !== 'string' || m.node_id === '') errores.push('falta node_id');\n\n    if (msg.topic === 'site/datos') {\n        if (m.type !== 'rack' && m.type !== 'ambiente') errores.push('type debe ser rack o ambiente');\n        if (!Number.isInteger(m.seq)) errores.push('falta seq entero');\n        if (m.type === 'rack' && !Array.isArray(m.positions)) errores.push('rack sin positions');\n    } else if (msg.topic.startsWith('site/estado/')) {\n        if (m.status !== 'online' && m.status !== 'offline') errores.push('status debe ser online u offline');\n        if (msg.topic !== 'site/estado/' + m.node_id) errores.push('el tema no coincide con node_id');\n    }\n}\n\nif (errores.length) {\n    msg.payload = { rechazado: errores, original: m };\n    return [null, msg];\n}\nreturn [msg, null];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 370,
+    "y": 110,
+    "wires": [
+      [
+        "mvp_dbg_ok"
+      ],
+      [
+        "mvp_dbg_mal"
+      ]
+    ]
+  },
+  {
+    "id": "mvp_dbg_ok",
+    "type": "debug",
+    "z": "mvp_tab",
+    "name": "OK",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 610,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "mvp_dbg_mal",
+    "type": "debug",
+    "z": "mvp_tab",
+    "name": "RECHAZADO",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 630,
+    "y": 140,
+    "wires": []
+  }
+]

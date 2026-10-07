@@ -1,7 +1,8 @@
-# Ejemplo. Copiar a /etc/mosquitto/conf.d/ en la Orange Pi.
+# Ejemplo. Copiar a /etc/mosquitto/conf.d/mvp.conf
+# El paquete de Ubuntu/Debian ya define persistence y log_dest en mosquitto.conf:
+# repetirlos aquí hace fallar el arranque. Si otro archivo de conf.d ya define
+# listener, allow_anonymous o password_file, no los repitas (error "Duplicate").
 listener 1883
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
-persistence true
-persistence_location /var/lib/mosquitto/
