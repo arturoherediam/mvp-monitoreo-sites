@@ -37,7 +37,7 @@ Se publica al conectar (retenido). El testamento (LWT) publica el mismo topic co
 | --- | --- |
 | Unidades | °C, %HR y µg/m³ |
 | Sensor con falla | El valor va en `null` y se agrega `"err":["sht41_B_timeout"]` |
-| Códigos de error | `sht41_<pos>_timeout`, `mux_sin_respuesta`, `pms_sin_trama` |
+| Códigos de error | Rack: `sht41_<pos>_timeout` (por ejemplo `sht41_B_timeout`) y `mux_sin_respuesta`. Ambiente: `sht41_timeout` y `pms_sin_trama` |
 | Partículas | PM1.0, PM2.5 y PM10 en µg/m³. Priscila define en la tarea 6.2 si usa los valores CF=1 o los atmosféricos de la trama del PMS5003 |
 | Punto de rocío | Calculado en el firmware con Magnus (a = 17.62, b = 243.12). Pruebas: 25 °C y 60 % dan 16.7 °C; 30 °C y 70 % dan 23.9 °C |
 | Velocidad de cambio | `rate_c_min` en °C/min con ventana de 60 s |
