@@ -42,13 +42,15 @@ Se publica al conectar (retenido). El testamento (LWT) publica el mismo topic co
 | Punto de rocío | Calculado en el firmware con Magnus (a = 17.62, b = 243.12). Pruebas: 25 °C y 60 % dan 16.7 °C; 30 °C y 70 % dan 23.9 °C |
 | Velocidad de cambio | `rate_c_min` en °C/min con ventana de 60 s |
 | Flama | Va en el mensaje periódico (campo `flame` de la posición que lleva el YG1006) y se publica además de inmediato al detectarla |
-| `seq` | Contador que sube en cada publicación; sirve para detectar pérdidas y duplicados |
+| `seq` | Contador que empieza en 1 al arrancar el nodo y sube en cada publicación. Sirve para detectar pérdidas (saltos) y reinicios (vuelve a 1); no sirve para filtrar repeticiones, porque cada mensaje lleva un `seq` nuevo |
 | `node_id` | Único por placa (`rack-01`, `amb-01`), definido en `secrets.h` o `config.h` |
 | Marca de tiempo | La agrega Node-RED al recibir |
 
 ## Flama y QoS 0
 
-PubSubClient solo publica con QoS 0. Para que la flama no dependa de un solo mensaje, el firmware del rack la repite cada segundo mientras esté activa, y Node-RED descarta duplicados con `seq`. Luis Mario confirma este punto antes del 9 de octubre.
+PubSubClient solo publica con QoS 0. Sobre una conexión sana, TCP ya retransmite los paquetes perdidos; el riesgo real es que la conexión esté caída justo en ese momento. Para que la flama no dependa de un solo mensaje, el firmware del rack repite `flame: true` cada segundo mientras esté activa.
+
+Node-RED trata la flama como un **estado**: levanta la alerta con el primer `flame: true`, la mantiene mientras sigan llegando mensajes con `true` y la limpia tras unos 5 s sin ninguno (o al recibir `false`). Si el nodo deja de publicar por completo, el estado `offline` (LWT) es la señal de respaldo. Luis Mario confirma este punto antes del 9 de octubre.
 
 ## Cambios al contrato
 
