@@ -1,0 +1,731 @@
+[
+  {
+    "id": "d43_tab",
+    "type": "tab",
+    "label": "MVP dashboard 4.3",
+    "disabled": false,
+    "info": "Dashboard v1 (Dashboard 2.0): lee site/datos y site/estado/+ del broker (config 'mvp_broker' del flujo 4.1), valida el contrato v1 y muestra rack, ambiente, estado de nodos y alertas. Abrir en http://localhost:1880/mvp-site/monitoreo"
+  },
+  {
+    "id": "d43_ui_base",
+    "type": "ui-base",
+    "name": "MVP monitoreo",
+    "path": "/mvp-site",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "showPageTitle": true,
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "headerContent": "page",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": 1,
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "d43_ui_theme",
+    "type": "ui-theme",
+    "name": "Tema MVP",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#0b5cab",
+      "bgPage": "#eef1f5",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d5dbe3"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "6px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "d43_ui_page",
+    "type": "ui-page",
+    "name": "Monitoreo del site",
+    "ui": "d43_ui_base",
+    "path": "/monitoreo",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "d43_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "d43_g_estado",
+    "type": "ui-group",
+    "name": "Estado de los nodos y alertas",
+    "page": "d43_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_g_a",
+    "type": "ui-group",
+    "name": "Rack · posición A (arriba, con sensor de flama)",
+    "page": "d43_ui_page",
+    "width": "4",
+    "height": "1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_g_b",
+    "type": "ui-group",
+    "name": "Rack · posición B",
+    "page": "d43_ui_page",
+    "width": "4",
+    "height": "1",
+    "order": 3,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_g_amb",
+    "type": "ui-group",
+    "name": "Ambiente del cuarto",
+    "page": "d43_ui_page",
+    "width": "4",
+    "height": "1",
+    "order": 4,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_g_gt",
+    "type": "ui-group",
+    "name": "Temperaturas",
+    "page": "d43_ui_page",
+    "width": "6",
+    "height": "1",
+    "order": 5,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_g_gp",
+    "type": "ui-group",
+    "name": "Partículas (µg/m³)",
+    "page": "d43_ui_page",
+    "width": "6",
+    "height": "1",
+    "order": 6,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d43_in_datos",
+    "type": "mqtt in",
+    "z": "d43_tab",
+    "name": "site/datos",
+    "topic": "site/datos",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "d43_proc"
+      ]
+    ]
+  },
+  {
+    "id": "d43_in_estado",
+    "type": "mqtt in",
+    "z": "d43_tab",
+    "name": "site/estado/+",
+    "topic": "site/estado/+",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "d43_proc"
+      ]
+    ]
+  },
+  {
+    "id": "d43_tick",
+    "type": "inject",
+    "z": "d43_tab",
+    "name": "Tick 1 s",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "1",
+    "topic": "tick",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 220,
+    "wires": [
+      [
+        "d43_proc"
+      ]
+    ]
+  },
+  {
+    "id": "d43_proc",
+    "type": "function",
+    "z": "d43_tab",
+    "name": "Procesar y repartir",
+    "func": "// Dashboard v1 (tarea 4.3): valida el contrato v1, guarda el último estado de cada nodo\n// y reparte los datos a los widgets. Se ejecuta con cada mensaje MQTT y cada segundo (tick).\n// Salidas: 1 Temp A | 2 Hum A | 3 Info A | 4 Temp B | 5 Hum B | 6 Info B\n//          7 Temp amb | 8 Hum amb | 9 Info amb | 10 Gráfica temperaturas | 11 Gráfica PM | 12 Estado y alertas\nconst ahora = Date.now();\nconst FLAMA_RETENCION_MS = 5000;                  // sin flame:true durante este tiempo, la alerta se limpia\nconst SIN_DATOS_MS = { rack: 10000, ambiente: 20000 };\n\nconst S = flow.get('mvp43') || {\n    nodos: {}, rack: { A: null, B: null, errGlobal: [] }, amb: null,\n    flama: { activa: false, ultima: 0 }, rechazados: 0, ultimoRechazo: ''\n};\nconst salidas = new Array(12).fill(null);\nconst grafT = [];\nconst grafP = [];\n\nconst num = v => (typeof v === 'number' && isFinite(v)) ? v : null;\nconst fmt = (v, d, u) => num(v) === null ? '—' : v.toFixed(d) + (u ? ' ' + u : '');\nconst fmtRate = v => num(v) === null ? '—' : (v > 0 ? '+' : '') + v.toFixed(1) + ' °C/min';\nconst tipoDe = id => id.startsWith('rack') ? 'rack' : (id.startsWith('amb') ? 'ambiente' : 'otro');\nfunction nodo(id) {\n    if (!S.nodos[id]) S.nodos[id] = { id: id, tipo: tipoDe(id), estado: null, fw: null, seq: null, perdidos: 0, reinicios: 0, visto: 0 };\n    return S.nodos[id];\n}\n\n// ---- 1) Validación del contrato v1 (misma lógica del flujo 4.1)\nfunction validar(m, t) {\n    const e = [];\n    if (typeof m !== 'object' || m === null || Array.isArray(m)) return ['el contenido no es un objeto JSON'];\n    if (m.schema !== 1) e.push('schema debe ser 1');\n    if (typeof m.node_id !== 'string' || m.node_id === '') e.push('falta node_id');\n    if (t === 'site/datos') {\n        if (m.type !== 'rack' && m.type !== 'ambiente') e.push('type debe ser rack o ambiente');\n        if (!Number.isInteger(m.seq)) e.push('falta seq entero');\n        if (m.type === 'rack' && !Array.isArray(m.positions)) e.push('rack sin positions');\n    } else if (typeof t === 'string' && t.startsWith('site/estado/')) {\n        if (m.status !== 'online' && m.status !== 'offline') e.push('status debe ser online u offline');\n        if (t !== 'site/estado/' + m.node_id) e.push('el tema no coincide con node_id');\n    } else {\n        e.push('tema no esperado: ' + t);\n    }\n    return e;\n}\n\n// ---- 2) Procesar el mensaje recibido\nconst t = msg.topic;\nif (t !== 'tick') {\n    const m = msg.payload;\n    const errores = validar(m, t);\n    if (errores.length) {\n        S.rechazados++;\n        S.ultimoRechazo = errores.join('; ');\n    } else if (t === 'site/datos') {\n        const n = nodo(m.node_id);\n        n.tipo = m.type;\n        if (n.estado === 'offline') n.estado = 'online';          // si llegan datos, el nodo está vivo\n        if (n.seq !== null) {\n            if (m.seq <= n.seq) n.reinicios++;\n            else if (m.seq > n.seq + 1) n.perdidos += m.seq - n.seq - 1;\n        }\n        n.seq = m.seq;\n        n.visto = ahora;\n\n        if (m.type === 'rack') {\n            S.rack.errGlobal = Array.isArray(m.err) ? m.err : [];\n            for (const p of m.positions) {\n                if (p.id !== 'A' && p.id !== 'B') continue;\n                S.rack[p.id] = {\n                    temp: num(p.temp), hum: num(p.hum), dew: num(p.dew_point), rate: num(p.rate_c_min),\n                    err: Array.isArray(p.err) ? p.err : [], visto: ahora\n                };\n                const base = p.id === 'A' ? 0 : 3;\n                if (num(p.temp) !== null) {\n                    salidas[base] = { payload: p.temp };\n                    grafT.push({ topic: 'Rack ' + p.id, payload: p.temp });\n                }\n                if (num(p.hum) !== null) salidas[base + 1] = { payload: p.hum };\n                if (p.flame === true) { S.flama.activa = true; S.flama.ultima = ahora; }\n                else if (p.flame === false) { S.flama.activa = false; }\n            }\n        } else {\n            S.amb = {\n                temp: num(m.temp), hum: num(m.hum), dew: num(m.dew_point), rate: num(m.rate_c_min),\n                pm1: num(m.pm1_0), pm25: num(m.pm2_5), pm10: num(m.pm10),\n                err: Array.isArray(m.err) ? m.err : [], visto: ahora\n            };\n            if (S.amb.temp !== null) { salidas[6] = { payload: S.amb.temp }; grafT.push({ topic: 'Ambiente', payload: S.amb.temp }); }\n            if (S.amb.hum !== null) salidas[7] = { payload: S.amb.hum };\n            if (S.amb.pm1 !== null) grafP.push({ topic: 'PM1.0', payload: S.amb.pm1 });\n            if (S.amb.pm25 !== null) grafP.push({ topic: 'PM2.5', payload: S.amb.pm25 });\n            if (S.amb.pm10 !== null) grafP.push({ topic: 'PM10', payload: S.amb.pm10 });\n        }\n    } else {\n        const n = nodo(m.node_id);\n        n.estado = m.status;\n        if (m.fw) n.fw = m.fw;\n    }\n}\n\n// La alerta de flama se limpia si pasan unos segundos sin flame:true\nif (S.flama.activa && ahora - S.flama.ultima > FLAMA_RETENCION_MS) S.flama.activa = false;\n\n// ---- 3) Estado de los nodos y alertas\nfunction estadoNodo(n) {\n    if (n.estado === 'offline') return { texto: 'Desconectado', nivel: 'mal' };\n    if (!n.visto) return n.estado === 'online' ? { texto: 'En línea, sin datos aún', nivel: 'aviso' } : { texto: 'Sin información', nivel: 'nd' };\n    if (ahora - n.visto > (SIN_DATOS_MS[n.tipo] || 20000)) return { texto: 'Sin datos', nivel: 'aviso' };\n    return { texto: 'En línea', nivel: 'ok' };\n}\nconst etiqueta = n => n.tipo === 'rack' ? 'Nodo rack' : (n.tipo === 'ambiente' ? 'Nodo ambiente' : n.id);\nconst edad = visto => visto ? Math.round((ahora - visto) / 1000) : null;\n\nconst alertas = [];\nif (S.flama.activa) alertas.push({ nivel: 'critica', tipo: 'flama', texto: 'FLAMA detectada en el rack (posición A, arriba)' });\nconst listaNodos = Object.keys(S.nodos).sort().map(id => {\n    const n = S.nodos[id];\n    const e = estadoNodo(n);\n    if (e.nivel === 'mal') alertas.push({ nivel: 'critica', tipo: 'offline', texto: etiqueta(n) + ' (' + n.id + ') desconectado' });\n    if (e.nivel === 'aviso') alertas.push({ nivel: 'aviso', tipo: 'sindatos', texto: etiqueta(n) + ' (' + n.id + '): ' + e.texto.toLowerCase() });\n    return { id: n.id, etiqueta: etiqueta(n), estado: e.texto, nivel: e.nivel, seq: n.seq, perdidos: n.perdidos, reinicios: n.reinicios, fw: n.fw, edad: edad(n.visto) };\n});\nconst errRack = (S.rack.errGlobal || []).concat((S.rack.A ? S.rack.A.err : []), (S.rack.B ? S.rack.B.err : []));\nerrRack.forEach(c => alertas.push({ nivel: 'aviso', tipo: 'sensor', texto: 'Rack: ' + c }));\nif (S.amb) S.amb.err.forEach(c => alertas.push({ nivel: 'aviso', tipo: 'sensor', texto: 'Ambiente: ' + c }));\n\n// ---- 4) Paneles de información\nfunction infoRack(id) {\n    const p = S.rack[id];\n    if (!p) return null;\n    return {\n        flame: id === 'A' ? S.flama.activa : null,\n        filas: [['Punto de rocío', fmt(p.dew, 1, '°C')], ['Variación', fmtRate(p.rate)]],\n        errores: p.err.concat(S.rack.errGlobal || []),\n        edad: edad(p.visto)\n    };\n}\nfunction infoAmb() {\n    const a = S.amb;\n    if (!a) return null;\n    return {\n        flame: null,\n        filas: [['Punto de rocío', fmt(a.dew, 1, '°C')], ['Variación', fmtRate(a.rate)],\n                ['PM1.0', fmt(a.pm1, 0, 'µg/m³')], ['PM2.5', fmt(a.pm25, 0, 'µg/m³')], ['PM10', fmt(a.pm10, 0, 'µg/m³')]],\n        errores: a.err,\n        edad: edad(a.visto)\n    };\n}\nconst iA = infoRack('A'), iB = infoRack('B'), iM = infoAmb();\nif (iA) salidas[2] = { payload: iA };\nif (iB) salidas[5] = { payload: iB };\nif (iM) salidas[8] = { payload: iM };\nif (grafT.length) salidas[9] = grafT;\nif (grafP.length) salidas[10] = grafP;\nsalidas[11] = { payload: { alertas: alertas, nodos: listaNodos, rechazados: S.rechazados, ultimoRechazo: S.ultimoRechazo } };\n\nflow.set('mvp43', S);\nreturn salidas;\n",
+    "outputs": 12,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 400,
+    "y": 160,
+    "wires": [
+      [
+        "d43_ga_t"
+      ],
+      [
+        "d43_ga_h"
+      ],
+      [
+        "d43_ga_i"
+      ],
+      [
+        "d43_gb_t"
+      ],
+      [
+        "d43_gb_h"
+      ],
+      [
+        "d43_gb_i"
+      ],
+      [
+        "d43_gm_t"
+      ],
+      [
+        "d43_gm_h"
+      ],
+      [
+        "d43_gm_i"
+      ],
+      [
+        "d43_ch_t"
+      ],
+      [
+        "d43_ch_p"
+      ],
+      [
+        "d43_st"
+      ]
+    ]
+  },
+  {
+    "id": "d43_ga_t",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Temperatura",
+    "group": "d43_g_a",
+    "order": 1,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Temperatura",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "°C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 10,
+        "color": "#1f77b4"
+      }
+    ],
+    "min": 10,
+    "max": 50,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "d43_ga_h",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Humedad",
+    "group": "d43_g_a",
+    "order": 2,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Humedad",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#2a9d8f"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "d43_gb_t",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Temperatura",
+    "group": "d43_g_b",
+    "order": 1,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Temperatura",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "°C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 10,
+        "color": "#1f77b4"
+      }
+    ],
+    "min": 10,
+    "max": 50,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "d43_gb_h",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Humedad",
+    "group": "d43_g_b",
+    "order": 2,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Humedad",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#2a9d8f"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "d43_gm_t",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Temperatura",
+    "group": "d43_g_amb",
+    "order": 1,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Temperatura",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "°C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 10,
+        "color": "#1f77b4"
+      }
+    ],
+    "min": 10,
+    "max": 50,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "d43_gm_h",
+    "type": "ui-gauge",
+    "z": "d43_tab",
+    "name": "Humedad",
+    "group": "d43_g_amb",
+    "order": 2,
+    "width": 2,
+    "height": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Humedad",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#2a9d8f"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 720,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "d43_ga_i",
+    "type": "ui-template",
+    "z": "d43_tab",
+    "group": "d43_g_a",
+    "page": "",
+    "ui": "",
+    "name": "Info rack A",
+    "order": 3,
+    "width": 4,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div v-if=\"msg && msg.payload\" style=\"width:100%\">\n    <div v-if=\"msg.payload.flame !== null\"\n         :style=\"{background: msg.payload.flame ? '#c62828' : '#2e7d32', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px'}\">\n      {{ msg.payload.flame ? 'FLAMA DETECTADA' : 'Sin flama' }}\n    </div>\n    <table style=\"width:100%; border-collapse:collapse\">\n      <tr v-for=\"f in msg.payload.filas\" :key=\"f[0]\">\n        <td style=\"padding:2px 0\">{{ f[0] }}</td>\n        <td style=\"text-align:right; font-weight:bold\">{{ f[1] }}</td>\n      </tr>\n    </table>\n    <div v-for=\"e in msg.payload.errores\" :key=\"e\" style=\"color:#c62828; margin-top:6px\">⚠ {{ e }}</div>\n    <div style=\"color:#6b7280; margin-top:6px; font-size:12px\">\n      {{ msg.payload.edad === null ? 'Sin datos todavía' : 'Última lectura hace ' + msg.payload.edad + ' s' }}\n    </div>\n  </div>\n  <div v-else style=\"color:#6b7280\">Esperando datos…</div>\n</template>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 720,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d43_gb_i",
+    "type": "ui-template",
+    "z": "d43_tab",
+    "group": "d43_g_b",
+    "page": "",
+    "ui": "",
+    "name": "Info rack B",
+    "order": 3,
+    "width": 4,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div v-if=\"msg && msg.payload\" style=\"width:100%\">\n    <div v-if=\"msg.payload.flame !== null\"\n         :style=\"{background: msg.payload.flame ? '#c62828' : '#2e7d32', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px'}\">\n      {{ msg.payload.flame ? 'FLAMA DETECTADA' : 'Sin flama' }}\n    </div>\n    <table style=\"width:100%; border-collapse:collapse\">\n      <tr v-for=\"f in msg.payload.filas\" :key=\"f[0]\">\n        <td style=\"padding:2px 0\">{{ f[0] }}</td>\n        <td style=\"text-align:right; font-weight:bold\">{{ f[1] }}</td>\n      </tr>\n    </table>\n    <div v-for=\"e in msg.payload.errores\" :key=\"e\" style=\"color:#c62828; margin-top:6px\">⚠ {{ e }}</div>\n    <div style=\"color:#6b7280; margin-top:6px; font-size:12px\">\n      {{ msg.payload.edad === null ? 'Sin datos todavía' : 'Última lectura hace ' + msg.payload.edad + ' s' }}\n    </div>\n  </div>\n  <div v-else style=\"color:#6b7280\">Esperando datos…</div>\n</template>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 720,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d43_gm_i",
+    "type": "ui-template",
+    "z": "d43_tab",
+    "group": "d43_g_amb",
+    "page": "",
+    "ui": "",
+    "name": "Info ambiente",
+    "order": 3,
+    "width": 4,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div v-if=\"msg && msg.payload\" style=\"width:100%\">\n    <div v-if=\"msg.payload.flame !== null\"\n         :style=\"{background: msg.payload.flame ? '#c62828' : '#2e7d32', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px'}\">\n      {{ msg.payload.flame ? 'FLAMA DETECTADA' : 'Sin flama' }}\n    </div>\n    <table style=\"width:100%; border-collapse:collapse\">\n      <tr v-for=\"f in msg.payload.filas\" :key=\"f[0]\">\n        <td style=\"padding:2px 0\">{{ f[0] }}</td>\n        <td style=\"text-align:right; font-weight:bold\">{{ f[1] }}</td>\n      </tr>\n    </table>\n    <div v-for=\"e in msg.payload.errores\" :key=\"e\" style=\"color:#c62828; margin-top:6px\">⚠ {{ e }}</div>\n    <div style=\"color:#6b7280; margin-top:6px; font-size:12px\">\n      {{ msg.payload.edad === null ? 'Sin datos todavía' : 'Última lectura hace ' + msg.payload.edad + ' s' }}\n    </div>\n  </div>\n  <div v-else style=\"color:#6b7280\">Esperando datos…</div>\n</template>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 720,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d43_st",
+    "type": "ui-template",
+    "z": "d43_tab",
+    "group": "d43_g_estado",
+    "page": "",
+    "ui": "",
+    "name": "Estado y alertas",
+    "order": 1,
+    "width": 12,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div v-if=\"msg && msg.payload\" style=\"width:100%\">\n    <div v-if=\"msg.payload.alertas.length === 0\"\n         style=\"background:#e8f5e9; color:#1b5e20; padding:8px 12px; border-radius:6px; font-weight:bold\">Sin alertas</div>\n    <div v-for=\"(a, i) in msg.payload.alertas\" :key=\"i\"\n         :style=\"{background: a.nivel === 'critica' ? '#c62828' : '#f9a825', color: a.nivel === 'critica' ? '#fff' : '#212121', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', marginBottom: '6px'}\">\n      {{ a.tipo === 'flama' ? '🔥' : (a.tipo === 'offline' ? '⛔' : '⚠') }} {{ a.texto }}\n    </div>\n    <table style=\"width:100%; border-collapse:collapse; margin-top:8px\">\n      <tr style=\"text-align:left; color:#6b7280; font-size:12px\">\n        <th>Nodo</th><th>Estado</th><th>seq</th><th>Perdidos</th><th>Reinicios</th><th>Firmware</th><th>Último dato</th>\n      </tr>\n      <tr v-for=\"n in msg.payload.nodos\" :key=\"n.id\">\n        <td style=\"padding:3px 0\">{{ n.etiqueta }} <span style=\"color:#6b7280\">({{ n.id }})</span></td>\n        <td :style=\"{fontWeight: 'bold', color: n.nivel === 'ok' ? '#2e7d32' : (n.nivel === 'mal' ? '#c62828' : (n.nivel === 'aviso' ? '#b26a00' : '#6b7280'))}\">● {{ n.estado }}</td>\n        <td>{{ n.seq === null ? '—' : n.seq }}</td>\n        <td>{{ n.perdidos }}</td>\n        <td>{{ n.reinicios }}</td>\n        <td>{{ n.fw || '—' }}</td>\n        <td>{{ n.edad === null ? '—' : 'hace ' + n.edad + ' s' }}</td>\n      </tr>\n    </table>\n    <div v-if=\"msg.payload.nodos.length === 0\" style=\"color:#6b7280; margin-top:6px\">Ningún nodo ha publicado todavía.</div>\n    <div style=\"color:#6b7280; margin-top:8px; font-size:12px\">\n      Mensajes rechazados por el contrato: {{ msg.payload.rechazados }}\n      <span v-if=\"msg.payload.ultimoRechazo\"> · último: {{ msg.payload.ultimoRechazo }}</span>\n    </div>\n  </div>\n  <div v-else style=\"color:#6b7280\">Esperando datos…</div>\n</template>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 720,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d43_ch_t",
+    "type": "ui-chart",
+    "z": "d43_tab",
+    "group": "d43_g_gt",
+    "name": "Temperatura (últimos 10 min)",
+    "label": "Temperatura (últimos 10 min)",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": null,
+    "xAxisPropertyType": "timestamp",
+    "xmin": "",
+    "xmax": "",
+    "bins": 10,
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "yAxisLabel": "",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "",
+    "ymax": "",
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 10,
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "colors": [
+      "#1f77b4",
+      "#d62728",
+      "#2ca02c",
+      "#ff7f0e",
+      "#9467bd",
+      "#8c564b"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 6,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 720,
+    "y": 520,
+    "wires": []
+  },
+  {
+    "id": "d43_ch_p",
+    "type": "ui-chart",
+    "z": "d43_tab",
+    "group": "d43_g_gp",
+    "name": "PM1.0, PM2.5 y PM10 (últimos 10 min)",
+    "label": "PM1.0, PM2.5 y PM10 (últimos 10 min)",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": null,
+    "xAxisPropertyType": "timestamp",
+    "xmin": "",
+    "xmax": "",
+    "bins": 10,
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "yAxisLabel": "",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "0",
+    "ymax": "",
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 10,
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "colors": [
+      "#2ca02c",
+      "#ff7f0e",
+      "#9467bd",
+      "#1f77b4",
+      "#d62728",
+      "#8c564b"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 6,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 720,
+    "y": 580,
+    "wires": []
+  }
+]
