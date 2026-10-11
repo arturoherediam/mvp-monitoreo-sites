@@ -1,0 +1,7 @@
+{
+  "name": "sitemon-common",
+  "version": "0.1.0",
+  "description": "Libreria comun de los nodos (tarea 6.1)",
+  "frameworks": "arduino",
+  "platforms": "espressif32"
+}
