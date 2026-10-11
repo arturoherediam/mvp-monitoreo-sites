@@ -45,7 +45,7 @@ TasaCambio tasa;
 Pms5003Parser pms;
 
 // ================= Estado =================
-uint32_t seq = 0;
+uint32_t seq = 0;                       // el primer mensaje publicado lleva seq = 1
 uint32_t ultimaLecturaMs = 0;
 uint32_t ultimoIntentoMs = 0;
 uint32_t ultimaTramaPmsMs = 0;
@@ -106,7 +106,7 @@ void publicar(const Lectura& l, uint32_t ahora) {
   doc["schema"]   = 1;
   doc["type"]     = "ambiente";
   doc["node_id"]  = NODE_ID;
-  doc["seq"]      = seq++;                 // sube solo en cada publicacion
+  doc["seq"]      = ++seq;                 // contrato: empieza en 1 y sube en cada publicacion
   doc["uptime_s"] = ahora / 1000;
 
   if (l.shtOk) {
@@ -120,7 +120,7 @@ void publicar(const Lectura& l, uint32_t ahora) {
     doc["hum"] = nullptr;
     doc["dew_point"] = nullptr;
     doc["rate_c_min"] = nullptr;
-    doc["err"].add("sht41_timeout");      // codigo pendiente de aprobar por el equipo
+    doc["err"].add("sht41_timeout");      // codigo del contrato (contrato-json.md, Reglas)
   }
 
   if (l.pmsOk) {
@@ -131,7 +131,7 @@ void publicar(const Lectura& l, uint32_t ahora) {
     doc["pm1_0"] = nullptr;
     doc["pm2_5"] = nullptr;
     doc["pm10"]  = nullptr;
-    doc["err"].add("pms_sin_trama");      // codigo definido en el contrato
+    doc["err"].add("pms_sin_trama");      // codigo del contrato (contrato-json.md, Reglas)
   }
 
   char buf[512];
