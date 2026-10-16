@@ -10,6 +10,7 @@ gateway/mosquitto/*.passwd
 **/flows_cred.json
 **/*_cred.json
 **/.config.*.json
+gateway/**/environment
 
 # --- Datos locales ---
 *.db

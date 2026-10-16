@@ -9,7 +9,7 @@
 | 19 oct | Plazo real de fabricación de las PCB (supuesto: 8 días hábiles) | Diego |
 | 22 oct | Protocolo de la prueba de flama con encendedor | Luis Mario |
 | 6 nov | Canal WiFi del hotspot, medido en el recinto | Arturo |
-| 9 nov | Umbral inicial del índice de dosis | Priscila |
+| 9 nov | Umbrales iniciales de los índices de mantenimiento | Priscila |
 
 Al cerrar una decisión, se anota aquí el resultado y se actualiza el documento que corresponda.
 
