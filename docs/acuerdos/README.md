@@ -8,5 +8,6 @@ Estado: **borrador para ratificar en el kickoff**. Cualquier cambio entra por pu
 | [seguridad-y-secretos.md](seguridad-y-secretos.md) | Contraseñas, 1Password, usuarios MQTT, `secrets.h`, gitleaks |
 | [contrato-json.md](contrato-json.md) | Topics MQTT y formato JSON de los dos nodos |
 | [red-y-gateway.md](red-y-gateway.md) | Hotspot, ICS, subredes, respaldo de internet, SQLite |
+| [indices-mantenimiento.md](indices-mantenimiento.md) | Índices de mantenimiento, brisa marina y avisos por Telegram (tarea 4.7) |
 | [hardware.md](hardware.md) | Las 3 PCB, direcciones I2C, alimentación del PMS5003, prueba de flama |
 | [decisiones-abiertas.md](decisiones-abiertas.md) | Lo que falta decidir, con responsable y fecha |

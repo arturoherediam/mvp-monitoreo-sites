@@ -29,7 +29,7 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 4.4 | Llegada de la Orange Pi (10 oct o antes) | Externo | 1 | 1.1 | 10 oct | 10 oct | 14 |
 | 4.5 | Validar hotspot en Orange Pi (AP 2.4 GHz, IP fija, DHCP) | Arturo | 2 | 4.4 | 14 oct | 15 oct | 12 |
 | 4.6 | Instalar y asegurar gateway (Mosquitto+ACL, firewall, Node-RED, SQLite) | Arturo | 3 | 4.5, 4.3 | 16 oct | 20 oct | 12 |
-| 4.7 | Índice de dosis acumulada + API de viento | Arturo | 4 | 4.3 | 29 oct | 3 nov | 10 |
+| 4.7 | Índices de mantenimiento + API de viento + Telegram | Arturo | 4 | 4.3 | 29 oct | 3 nov | 10 |
 | 4.8 | Histórico en SQLite con escritura agrupada | Arturo | 2 | 4.6 | 23 oct | 26 oct | 14 |
 | 4.9 | ICS de la laptop (Ubuntu) y respaldo con hotspot del celular | Arturo | 2 | 4.6 | 4 nov | 5 nov | 6 |
 | **5. Nodo rack** | | | | | | | |
@@ -43,7 +43,7 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 6.2 | Banco de pruebas (ESP32+PMS5003+SHT41) | Priscila | 3 | 1.2 | 9 oct | 13 oct | 11 |
 | 6.3 | Firmware v1 del nodo ambiente (UART PMS5003, SHT41, JSON, MQTT+LWT) | Priscila | 4 | 6.1, 6.2 | 14 oct | 19 oct | 11 |
 | 6.4 | Validación de sensores y recolección de datos | Priscila | 2 | 6.3 | 23 oct | 26 oct | 10 |
-| 6.5 | Umbral inicial del índice de dosis (Arturo configura) | Priscila | 2 | 6.4, 4.7 | 10 nov | 11 nov | 6 |
+| 6.5 | Umbrales iniciales de los índices de mantenimiento (Arturo configura) | Priscila | 2 | 6.4, 4.7 | 10 nov | 11 nov | 6 |
 | **7. Integración y pruebas** | | | | | | | |
 | 7.1 | E2E de desarrollo: nodos → broker en laptop → dashboard | Arturo, Luis, Priscila | 2 | 5.3, 6.3, 4.3 | 21 oct | 22 oct | 10 |
 | 7.2 | Migrar a la Orange Pi y probar con nodos reales | Arturo, Luis, Priscila | 2 | 4.6, 7.1 | 27 oct | 28 oct | 8 |

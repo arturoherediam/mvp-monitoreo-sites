@@ -11,7 +11,7 @@ La Orange Pi Zero 3 es el gateway: crea el hotspot al que se conectan los nodos,
 | Canal WiFi | Se escanea en el recinto y se fija 1, 6 u 11 antes de las pruebas de integración |
 | VPN | Apagada en la laptop y en la Orange Pi durante desarrollo y demo; rompió el hotspot en el prototipo |
 | SQLite | Modo WAL con `synchronous=NORMAL`; escritura agrupada cada 10 a 30 s para cuidar la microSD |
-| Modo demo del índice | El índice de dosis acumulada es un modelo no validado empíricamente, basado en ANSI/ISA-71.04. La demo usa un modo acelerado y se declara al jurado |
+| Índices de mantenimiento | Reemplazan al índice de dosis (ANSI/ISA-71.04 mide gases corrosivos con cupones, y no los medimos). Se calculan en Node-RED con límites ASHRAE, el modelo de Peck y viento de Open-Meteo; dan riesgo relativo, no probabilidad de falla. La demo usa un modo acelerado y se declara al jurado. Ver [indices-mantenimiento.md](indices-mantenimiento.md) |
 
 ## ICS en la laptop (tarea 4.9)
 

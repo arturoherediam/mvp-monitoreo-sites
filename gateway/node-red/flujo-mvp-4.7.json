@@ -1,0 +1,453 @@
+[
+  {
+    "id": "d47_tab",
+    "type": "tab",
+    "label": "MVP mantenimiento 4.7",
+    "disabled": false,
+    "info": "Índices de mantenimiento, viento (Open-Meteo) y alertas por Telegram. Requiere los flujos 4.1 (broker mvp_broker) y 4.3 (dashboard). Página: <ruta del dashboard>/mantenimiento, por ejemplo http://localhost:1880/dashboard/mantenimiento. Telegram: variables de entorno TELEGRAM_TOKEN y TELEGRAM_CHAT. Ver docs/acuerdos/indices-mantenimiento.md"
+  },
+  {
+    "id": "d47_ui_page",
+    "type": "ui-page",
+    "name": "Mantenimiento",
+    "ui": "d43_ui_base",
+    "path": "/mantenimiento",
+    "icon": "wrench",
+    "layout": "grid",
+    "theme": "d43_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 2,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "d47_g_main",
+    "type": "ui-group",
+    "name": "Mantenimiento preventivo",
+    "page": "d47_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 1,
+    "showTitle": false,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d47_ini",
+    "type": "inject",
+    "z": "d47_tab",
+    "name": "Al desplegar",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "inicio",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 40,
+    "wires": [
+      [
+        "d47_sitio"
+      ]
+    ]
+  },
+  {
+    "id": "d47_sitio",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Configuración del sitio",
+    "func": "// Configuración del sitio (se ejecuta al desplegar). La leen \"Calcular índices\",\n// \"Consultar viento\" y \"Leer viento\". Para cambiar de sitio, cambia SITIO_ACTIVO.\nconst SITIOS = {\n    merida:   { nombre: 'Mérida, Yucatán',   lat: 20.97, lon: -89.62, costa_km: 35 },\n    progreso: { nombre: 'Progreso, Yucatán', lat: 21.28, lon: -89.66, costa_km: 0 }\n};\nconst SITIO_ACTIVO = 'merida';\n\nflow.set('mvp47sitio', Object.assign({\n    mar_desde: 290, mar_hasta: 70,   // en ambos el mar está al norte (grados de donde viene el viento)\n    brisa_kmh: 15,\n    hr_sal_ext: 75                   // humedad exterior para el riesgo de sal del pronóstico\n}, SITIOS[SITIO_ACTIVO]));\nflow.set('mvp47modo', { sim: false });      // al desplegar o reiniciar, la página vuelve a datos reales\nnode.status({ fill: 'blue', shape: 'dot', text: SITIOS[SITIO_ACTIVO].nombre });\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 40,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d47_in_datos",
+    "type": "mqtt in",
+    "z": "d47_tab",
+    "name": "site/datos",
+    "topic": "site/datos",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 120,
+    "wires": [
+      [
+        "d47_ind"
+      ]
+    ]
+  },
+  {
+    "id": "d47_in_estado",
+    "type": "mqtt in",
+    "z": "d47_tab",
+    "name": "site/estado/+",
+    "topic": "site/estado/+",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 300,
+    "wires": [
+      [
+        "d47_eval"
+      ]
+    ]
+  },
+  {
+    "id": "d47_hora",
+    "type": "inject",
+    "z": "d47_tab",
+    "name": "Cada hora",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "3600",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "5",
+    "topic": "viento",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 200,
+    "wires": [
+      [
+        "d47_consulta"
+      ]
+    ]
+  },
+  {
+    "id": "d47_consulta",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Consultar viento",
+    "func": "// Consultar viento: arma la URL de Open-Meteo (cada hora). El nodo http request usa msg.url.\n// Datos de Open-Meteo, licencia CC BY 4.0 (dar crédito en el dashboard).\nconst S = flow.get('mvp47sitio');\nif (!S) { node.status({ fill: 'red', shape: 'ring', text: 'falta configuración del sitio' }); return null; }\nconst VARS = 'temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m';\nmsg.url = 'https://api.open-meteo.com/v1/forecast' +\n    '?latitude=' + S.lat + '&longitude=' + S.lon +\n    '&current=' + VARS + '&hourly=' + VARS +\n    '&forecast_hours=24&wind_speed_unit=kmh&timezone=America%2FMexico_City';\nmsg.method = 'GET';\nnode.status({ fill: 'blue', shape: 'dot', text: 'consultando ' + S.nombre });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 320,
+    "y": 200,
+    "wires": [
+      [
+        "d47_http_viento"
+      ]
+    ]
+  },
+  {
+    "id": "d47_http_viento",
+    "type": "http request",
+    "z": "d47_tab",
+    "name": "Open-Meteo",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 500,
+    "y": 200,
+    "wires": [
+      [
+        "d47_leer"
+      ]
+    ]
+  },
+  {
+    "id": "d47_leer",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Leer viento",
+    "func": "// Leer viento: respuesta de Open-Meteo -> 2 salidas\n//   1: { topic: 'viento', payload: { dir_deg, vel_kmh, temp, hum } }  para \"Calcular índices\"\n//   2: resumen para el dashboard y Telegram: viento actual, desde el mar o no, y riesgo de sal en 24 h\nconst S = flow.get('mvp47sitio') || { nombre: '?', mar_desde: 290, mar_hasta: 70, brisa_kmh: 15, hr_sal_ext: 75, costa_km: null };\nconst HORAS_MIN_RIESGO = 2;          // ventana de al menos 2 h seguidas\nconst num = v => typeof v === 'number' && isFinite(v);\nconst enMar = d => S.mar_desde <= S.mar_hasta ? (d >= S.mar_desde && d <= S.mar_hasta)\n                                               : (d >= S.mar_desde || d <= S.mar_hasta);\nconst brisa = (dir, vel) => enMar(dir) && vel >= S.brisa_kmh;\nconst PUNTOS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];\nconst punto = d => PUNTOS[Math.round(d / 45) % 8];\n\nfunction falla(texto) {\n    node.status({ fill: 'red', shape: 'ring', text: texto });\n    return [null, { topic: 'pronostico', payload: { ok: false, sitio: S.nombre, texto: 'Sin datos de viento (' + texto + ')' } }];\n}\n\nif (msg.statusCode !== undefined && msg.statusCode !== 200) return falla('HTTP ' + msg.statusCode);\nlet p = msg.payload;\nif (typeof p === 'string') { try { p = JSON.parse(p); } catch (e) { return falla('respuesta no es JSON'); } }\nif (!p || typeof p !== 'object' || !p.hourly || !Array.isArray(p.hourly.time)) return falla('respuesta incompleta');\n\nconst H = p.hourly;\nconst c = p.current || {};\nconst act = {\n    dir_deg: num(c.wind_direction_10m) ? c.wind_direction_10m : H.wind_direction_10m && H.wind_direction_10m[0],\n    vel_kmh: num(c.wind_speed_10m) ? c.wind_speed_10m : H.wind_speed_10m && H.wind_speed_10m[0],\n    temp: num(c.temperature_2m) ? c.temperature_2m : H.temperature_2m && H.temperature_2m[0],\n    hum: num(c.relative_humidity_2m) ? c.relative_humidity_2m : H.relative_humidity_2m && H.relative_humidity_2m[0]\n};\nif (!num(act.dir_deg) || !num(act.vel_kmh)) return falla('sin viento actual');\n\n// Ventanas de riesgo: brisa marina y humedad exterior alta\nconst hoy = (typeof c.time === 'string' ? c.time : H.time[0]).slice(0, 10);\nconst ventanas = [];\nlet v = null;\nH.time.forEach((t, i) => {\n    const d = H.wind_direction_10m[i], s = H.wind_speed_10m[i], hr = H.relative_humidity_2m[i];\n    const riesgo = num(d) && num(s) && num(hr) && brisa(d, s) && hr >= S.hr_sal_ext;\n    if (riesgo) {\n        if (!v) { v = { desde: t, hasta: t, horas: 0 }; ventanas.push(v); }\n        v.hasta = t; v.horas++;\n    } else v = null;\n});\nconst reales = ventanas.filter(w => w.horas >= HORAS_MIN_RIESGO);\nconst dia = t => t.slice(0, 10) === hoy ? 'hoy' : 'mañana';\nconst hora = t => t.slice(11, 16);\nconst fin = t => { const h = (parseInt(t.slice(11, 13), 10) + 1) % 24; return (h < 10 ? '0' : '') + h + ':00'; };\nconst texto = reales.length\n    ? 'Riesgo de sal: ' + reales.map(w => dia(w.desde) + ' ' + hora(w.desde) + '–' + fin(w.hasta)).join(', ') +\n      '. Mantén puertas cerradas y el aire o deshumidificador encendido.'\n    : 'Sin riesgo de sal en las próximas 24 h.';\n\nconst desdeMar = enMar(act.dir_deg);\nnode.status({ fill: reales.length ? 'yellow' : 'green', shape: 'dot',\n              text: punto(act.dir_deg) + ' ' + act.vel_kmh + ' km/h' + (desdeMar ? ' (del mar)' : '') });\nreturn [\n    { topic: 'viento', payload: act },\n    { topic: 'pronostico', payload: {\n        ok: true, sitio: S.nombre, costa_km: S.costa_km,\n        actual: Object.assign({}, act, { punto: punto(act.dir_deg), desde_mar: desdeMar, brisa: brisa(act.dir_deg, act.vel_kmh) }),\n        riesgo: reales.length > 0, ventanas: reales, texto: texto,\n        fuente: 'Open-Meteo (CC BY 4.0)'\n    } }\n];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 200,
+    "wires": [
+      [
+        "d47_ind"
+      ],
+      [
+        "d47_eval"
+      ]
+    ]
+  },
+  {
+    "id": "d47_tick",
+    "type": "inject",
+    "z": "d47_tab",
+    "name": "Tick simulación (1 s)",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "2",
+    "topic": "tick",
+    "payload": "",
+    "payloadType": "date",
+    "x": 1110,
+    "y": 40,
+    "wires": [
+      [
+        "d47_sim"
+      ]
+    ]
+  },
+  {
+    "id": "d47_sim",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Simulador",
+    "func": "// Simulador (modo simulación del dashboard). Entradas:\n//   topic 'sim/control' -> { accion: 'iniciar' | 'detener' }   (botón de la página)\n//   topic 'tick'        -> cada 1 s\n// Salidas: 1 -> \"Calcular índices\" (mensajes con msg.sim = true)   2 -> \"Evaluar umbrales\" (pronóstico, estado de nodos y refrescar)\n// No publica en MQTT: la simulación no se ve en la página 4.3 y usa contadores aparte de los reales.\n// 9 fases de 20 s (3 min por ciclo). Con 180× cada fase cuenta como 1 h simulada.\nconst DUR = 20;\nconst ACEL = 180;                 // igual que ACELERACION_SIM de \"Calcular índices\"\nconst FASES = [\n    { id: 'normal', nombre: 'Oficina normal', texto: '23 °C, 50 % y poco polvo: todo en verde' },\n    { id: 'noche', nombre: 'Noche sin aire acondicionado', texto: 'sube poco a poco a 30 °C y 82 %, con viento del mar' },\n    { id: 'rocio', nombre: 'Condensación', texto: '25 °C y 92 %: a menos de 2 °C del punto de rocío' },\n    { id: 'subida', nombre: 'Subida rápida en todo el rack', texto: 'las posiciones A y B suben de 24 a 33 °C en 5 s: falla el aire acondicionado' },\n    { id: 'subida_local', nombre: 'Subida rápida local', texto: 'solo la posición A sube a 31 °C: un equipo o el flujo de aire cerca de A' },\n    { id: 'flama', nombre: 'Flama en el rack', texto: 'el sensor de flama de la posición A detecta fuego' },\n    { id: 'desconexion', nombre: 'Nodo desconectado', texto: 'el nodo de ambiente amb-01 se desconecta y vuelve' },\n    { id: 'polvo', nombre: 'Episodio de polvo', texto: 'PM10 de 300 µg/m³ (limpieza u obra cercana)' },\n    { id: 'falla', nombre: 'Falla del sensor de partículas', texto: 'tramas perdidas y valores imposibles (se recupera al empezar el siguiente ciclo)' }\n].map(f => Object.assign(f, { dur: DUR }));\nconst CICLO = FASES.reduce((s, f) => s + f.dur, 0);\nconst ahora = Date.now();\nconst M = flow.get('mvp47modo') || { sim: false };\nconst S = flow.get('mvp47sitio') || { nombre: 'Sitio', costa_km: null };\n\nconst ruido = a => (Math.random() - 0.5) * 2 * a;\nconst r2 = v => Math.round(v * 100) / 100;\nfunction rocio(t, h) { const a = 17.62, b = 243.12, g = Math.log(h / 100) + a * t / (b + t); return r2(b * g / (a - g)); }\nfunction faseEn(seg) {\n    let s = seg % CICLO;\n    for (let i = 0; i < FASES.length; i++) { if (s < FASES[i].dur) return { i: i, f: FASES[i], tf: s }; s -= FASES[i].dur; }\n    return { i: 0, f: FASES[0], tf: 0 };\n}\nfunction rackEn(id, tf) {\n    const x = Math.min(1, tf / DUR);\n    switch (id) {\n        case 'noche': return [23 + 7 * x, 50 + 32 * x];          // gradual: no cuenta como subida rápida\n        case 'rocio': return [25, 92];\n        case 'subida': return [24 + 9 * Math.min(1, tf / 5), 55];  // +9 °C en 5 s (15 min simulados)\n        case 'subida_local': return [24 + 7 * Math.min(1, tf / 5), 50];   // solo la posición A (ver mensajeRack)\n        case 'normal': return [23, 50];\n        default: return [24, 50];\n    }\n}\nfunction estado(id, st) {\n    return { topic: 'site/estado/' + id, sim: true, payload: { schema: 1, type: 'status', node_id: id, status: st } };\n}\nfunction mensajeRack(fz) {\n    const [t, h] = rackEn(fz.f.id, fz.tf);\n    M.seq = (M.seq || 0) + 1;\n    M.prev = M.prev || {};\n    const pos = ['A', 'B'].map((id, k) => {\n        const tp = fz.f.id === 'subida_local' && id === 'B' ? 24 : t;      // en la subida local B no se mueve\n        const temp = r2(tp - 0.4 * k + ruido(0.08)), hum = r2(Math.min(99, h - 1 * k + ruido(0.3)));\n        const ant = M.prev[id];\n        const tasa = ant ? r2((temp - ant.t) / ((ahora - ant.ts) * ACEL / 60000)) : 0;   // °C por minuto SIMULADO\n        M.prev[id] = { t: temp, ts: ahora };\n        const p = { id: id, temp: temp, hum: hum, dew_point: rocio(temp, hum), rate_c_min: tasa };\n        if (id === 'A') p.flame = fz.f.id === 'flama';\n        return p;\n    });\n    return { topic: 'site/datos', sim: true, payload: { schema: 1, type: 'rack', node_id: 'rack-01', seq: M.seq,\n             uptime_s: Math.round((ahora - M.inicio) / 1000), positions: pos } };\n}\nfunction mensajeAmbiente(fz) {\n    const [t, h] = rackEn(fz.f.id, fz.tf);\n    M.seqAmb = (M.seqAmb || 0) + 1;\n    const temp = r2(t - 0.5 + ruido(0.1)), hum = r2(Math.min(99, h + ruido(0.5)));\n    const m = { schema: 1, type: 'ambiente', node_id: 'amb-01', seq: M.seqAmb, uptime_s: Math.round((ahora - M.inicio) / 1000),\n                temp: temp, hum: hum, dew_point: rocio(temp, hum), rate_c_min: 0 };\n    if (fz.f.id === 'polvo') Object.assign(m, { pm1_0: 90, pm2_5: 150, pm10: Math.round(300 + ruido(15)) });\n    else if (fz.f.id === 'falla') {\n        if (M.seqAmb % 2) Object.assign(m, { pm1_0: null, pm2_5: null, pm10: null, err: ['pms_sin_trama'] });\n        else Object.assign(m, { pm1_0: 30, pm2_5: 20, pm10: 25 });                  // imposible: PM1.0 > PM2.5\n    } else Object.assign(m, { pm1_0: 9, pm2_5: 14, pm10: Math.round(21 + ruido(2)) });\n    return { topic: 'site/datos', sim: true, payload: m };\n}\nfunction pronosticoSimulado() {\n    const h = new Date(ahora + 3600000);\n    const hh = n => String(n % 24).padStart(2, '0') + ':00';\n    const texto = 'Riesgo de sal (simulado): hoy ' + hh(h.getHours()) + '–' + hh(h.getHours() + 5) +\n                  '. Mantén puertas cerradas y el aire o deshumidificador encendido.';\n    return { topic: 'pronostico', sim: true, payload: {\n        ok: true, sitio: S.nombre, costa_km: S.costa_km, riesgo: true, texto: texto,\n        ventanas: [{ desde: 'sim-' + ahora, hasta: 'sim', horas: 5 }],\n        actual: { dir_deg: 10, vel_kmh: 25, temp: 29, hum: 85, punto: 'N', desde_mar: true, brisa: true },\n        fuente: 'Simulación (no son datos reales)' } };\n}\nconst infoFase = (fz, ciclo) => ({ n: fz.i + 1, id: fz.f.id, total: FASES.length, nombre: fz.f.nombre, texto: fz.f.texto,\n                                   quedan_s: Math.ceil(fz.f.dur - fz.tf), ciclo: ciclo });\n\nif (msg.topic === 'sim/control') {\n    const accion = msg.payload && msg.payload.accion;\n    if (accion === 'iniciar') {\n        flow.set('mvp47sim', undefined);                 // contadores de simulación desde cero\n        flow.set('mvp47alertas_sim', undefined);\n        const fz = faseEn(0);\n        flow.set('mvp47modo', { sim: true, inicio: ahora, seq: 0, seqAmb: 0, ultRack: 0, ultAmb: 0, fase: infoFase(fz, 1) });\n        node.status({ fill: 'blue', shape: 'dot', text: 'simulando: ' + fz.f.nombre });\n        return [{ topic: 'viento', sim: true, payload: { dir_deg: 10, vel_kmh: 25 } },\n                [estado('rack-01', 'online'), estado('amb-01', 'online'), pronosticoSimulado(), { topic: 'refrescar' }]];\n    }\n    if (accion === 'detener') {\n        flow.set('mvp47modo', { sim: false });\n        node.status({});\n        return [null, { topic: 'refrescar' }];\n    }\n    return null;\n}\nif (msg.topic !== 'tick' || !M.sim) return null;\n\nconst seg = (ahora - M.inicio) / 1000;\nconst fz = faseEn(seg);\nconst ciclo = Math.floor(seg / CICLO) + 1;\nconst antes = M.fase ? M.fase.id : null;\nconst salida = [], aEval = [];\nif (M.fase && ciclo !== M.fase.ciclo) salida.push({ topic: 'viento', sim: true, payload: { dir_deg: 10, vel_kmh: 25 } });   // renueva el viento cada ciclo\nif (fz.f.id === 'desconexion' && antes !== 'desconexion') aEval.push(estado('amb-01', 'offline'));\nif (fz.f.id !== 'desconexion' && antes === 'desconexion') aEval.push(estado('amb-01', 'online'));\nif (ahora - (M.ultRack || 0) >= 2000) { salida.push(mensajeRack(fz)); M.ultRack = ahora; }\n// el ambiente manda cada 1 s en la simulación (cada 5 s en el nodo real) y calla mientras está desconectado\nif (fz.f.id !== 'desconexion' && ahora - (M.ultAmb || 0) >= 1000) { salida.push(mensajeAmbiente(fz)); M.ultAmb = ahora; }\nM.fase = infoFase(fz, ciclo);\nflow.set('mvp47modo', M);\nnode.status({ fill: 'blue', shape: 'dot', text: 'fase ' + M.fase.n + '/' + FASES.length + ': ' + fz.f.nombre });\nreturn [salida.length ? salida : null, aEval.length ? aEval : null];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1300,
+    "y": 40,
+    "wires": [
+      [
+        "d47_ind"
+      ],
+      [
+        "d47_eval"
+      ]
+    ]
+  },
+  {
+    "id": "d47_ind",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Calcular índices",
+    "func": "// Calcular índices (tarea 4.7). Entrada:\n//   topic 'site/datos'    -> mensaje del contrato JSON v1 (rack o ambiente)\n//   topic 'viento'        -> { dir_deg, vel_kmh } desde la API (cada hora)\n//   topic 'mantenimiento' -> { indice: 'envejecimiento'|'corrosion'|'polvo'|'termico'|'condensacion'|'pms' }\n// Si msg.sim === true (o el modo simulación está activo para 'mantenimiento'), usa contadores aparte:\n// la simulación nunca toca los acumulados reales.\n// Salida: msg.payload = { indices, actual, bitacora, aceleracion, sim }\nconst CFG = {\n    ACELERACION: 1,                 // modo demo: 60 = una hora por minuto (declararlo al jurado).\n                                    // Solo acelera lo acumulado; subidas y PM fijo usan tiempo real\n                                    // (en la simulación la subida también usa tiempo simulado).\n    ACELERACION_SIM: 180,           // la simulación del dashboard usa 180×: cada fase de 20 s cuenta como 1 h\n    HUECO_MS: { rack: 10000, ambiente: 20000 },   // más tiempo sin datos = no se acumula\n    PECK: { Ea: 0.79, n: 2.7, k: 8.617e-5, T_REF: 25, HR_REF: 50 },\n    HR_ALTA: 60, HR_SAL: 75,        // ASHRAE (delicuescencia) y sal marina\n    T_RECOMENDADA: 27, T_PERMITIDA: 32,           // ASHRAE recomendado y A1 permitido\n    SUBIDA_C: 5, SUBIDA_MS: 15 * 60000,           // ASHRAE: máx. 5 °C en 15 min\n    MARGEN_ROCIO: 3,                // °C entre temperatura y punto de rocío\n    PM10_ALTO: 150,                 // µg/m³: límite diario de la EPA, usado como referencia de episodio de polvo\n    MAR_DESDE: 290, MAR_HASTA: 70,  // sector del mar (grados de donde viene el viento)\n    BRISA_KMH: 15,\n    VIENTO_VIGENCIA_MS: 2 * 3600000,\n    PM_FIJO_MS: 3600000,            // PM idéntico por 1 h = sospechoso\n    VENTANA_PMS: 120,               // salud del PMS5003: últimas 120 tramas (10 min a 5 s)\n    VENTANA_PMS_DEMO: 12            // con tiempo acelerado (simulación o demo): últimas 12 tramas (1 min)\n};\nconst SITIO = flow.get('mvp47sitio');     // lo escribe \"Configuración del sitio\"\nif (SITIO) { CFG.MAR_DESDE = SITIO.mar_desde; CFG.MAR_HASTA = SITIO.mar_hasta; CFG.BRISA_KMH = SITIO.brisa_kmh; }\nconst MODO = flow.get('mvp47modo') || { sim: false };\nconst SIM = msg.sim === true || (msg.topic === 'mantenimiento' && MODO.sim === true);\nconst ACEL = SIM ? CFG.ACELERACION_SIM : CFG.ACELERACION;\nconst VENTANA = ACEL > 1 ? CFG.VENTANA_PMS_DEMO : CFG.VENTANA_PMS;\nconst K = SIM ? 'mvp47sim' : 'mvp47';\nconst SUBIDA_MS = SIM ? CFG.SUBIDA_MS / ACEL : CFG.SUBIDA_MS;   // 15 min (simulados en la simulación)\nconst PASO_HIST_MS = SIM ? 30000 / ACEL : 30000;\nconst ahora = Date.now();\n\nfunction nuevo() {\n    const z = () => ({ desde: ahora });\n    return {\n        indices: {\n            envejecimiento: Object.assign(z(), { horas_eq: 0, horas: 0 }),\n            corrosion: Object.assign(z(), { h_hr60: 0, h_hr75: 0, h_brisa: 0 }),\n            polvo: Object.assign(z(), { ugh: 0 }),\n            termico: Object.assign(z(), { min27: 0, min32: 0, subidas: 0, ultima: null }),\n            condensacion: Object.assign(z(), { min: 0 }),\n            pms: Object.assign(z(), { horas: 0, ugh: 0, tramas: 0, perdidas: 0, imposibles: 0, min_fijo: 0 })\n        },\n        ultimo: {}, historial: {}, armado: {}, episodio: {}, viento: null, pmPrevio: null, ventanaPms: [],\n        actual: {}, bitacora: []\n    };\n}\nconst S = flow.get(K) || nuevo();\nS.ventanaPms = S.ventanaPms || [];\nS.episodio = S.episodio || {};\n\nconst P_ = CFG.PECK;\nconst fTemp = t => Math.exp(P_.Ea / P_.k * (1 / (P_.T_REF + 273.15) - 1 / (t + 273.15)));   // Arrhenius\nconst fHum = hr => Math.pow(hr / P_.HR_REF, P_.n);                                          // humedad (Peck)\nconst peck = (t, hr) => hr > 0 ? fHum(hr) * fTemp(t) : null;\nconst num = v => typeof v === 'number' && isFinite(v);\nfunction enMar(d) {\n    return CFG.MAR_DESDE <= CFG.MAR_HASTA ? (d >= CFG.MAR_DESDE && d <= CFG.MAR_HASTA)\n                                          : (d >= CFG.MAR_DESDE || d <= CFG.MAR_HASTA);\n}\nfunction brisaActiva() {\n    const v = S.viento;\n    if (!v || ahora - v.ts > CFG.VIENTO_VIGENCIA_MS) return null;      // sin datos de viento\n    return enMar(v.dir_deg) && v.vel_kmh >= CFG.BRISA_KMH;\n}\n// Δt en horas (acelerado), 0 si hubo hueco o es el primer mensaje\nfunction deltaH(id, tipo) {\n    const prev = S.ultimo[id];\n    S.ultimo[id] = ahora;\n    if (prev === undefined) return 0;\n    const dt = ahora - prev;\n    if (dt <= 0 || dt > CFG.HUECO_MS[tipo]) return 0;\n    return dt * ACEL / 3600000;\n}\n// cuánto subió una posición en la ventana de 15 min (sin modificar el historial)\nfunction aumento(clave, t) {\n    const h = S.historial[clave] || [];\n    return t - Math.min.apply(null, h.map(x => x[1]).concat([t]));\n}\n// subidas > 5 °C en 15 min por posición; se rearma cuando vuelve a menos de la mitad\nfunction revisarSubida(clave, t) {\n    const h = (S.historial[clave] = S.historial[clave] || []);\n    const ultimo = h[h.length - 1];\n    if (!ultimo || ahora - ultimo[0] >= PASO_HIST_MS) h.push([ahora, t]);\n    while (h.length && ahora - h[0][0] > SUBIDA_MS) h.shift();\n    const min = Math.min.apply(null, h.map(x => x[1]).concat([t]));\n    if (t - min > CFG.SUBIDA_C) {\n        if (S.armado[clave] !== false) { S.armado[clave] = false; return true; }\n    } else if (t - min < CFG.SUBIDA_C / 2) {\n        S.armado[clave] = true;\n    }\n    return false;\n}\nfunction valido(m) {\n    return m && typeof m === 'object' && m.schema === 1 && typeof m.node_id === 'string' &&\n        (m.type === 'rack' ? Array.isArray(m.positions) : m.type === 'ambiente');\n}\nconst A = S.actual;\nA.subida_ahora = false;\nA.subida_evento = null;          // 'nueva' | 'ahora_general' (solo en el mensaje donde ocurre)\n\nif (msg.topic === 'viento') {\n    const p = msg.payload || {};\n    if (num(p.dir_deg) && num(p.vel_kmh)) S.viento = { dir_deg: p.dir_deg, vel_kmh: p.vel_kmh, ts: ahora };\n} else if (msg.topic === 'mantenimiento') {\n    const nombre = msg.payload && msg.payload.indice;\n    if (!S.indices[nombre]) return null;\n    S.indices[nombre] = nuevo().indices[nombre];\n    if (nombre === 'pms') S.ventanaPms = [];\n    S.bitacora.unshift({ indice: nombre, ts: ahora });\n    S.bitacora = S.bitacora.slice(0, 20);\n} else if (msg.topic === 'site/datos') {\n    let m = msg.payload;\n    if (typeof m === 'string') { try { m = JSON.parse(m); } catch (e) { return null; } }\n    if (!valido(m)) return null;\n    const I = S.indices;\n    const dh = deltaH(m.node_id, m.type);\n    const dmin = dh * 60;\n\n    if (m.type === 'rack') {\n        A.flama = m.positions.some(p => p.flame === true);\n        const pos = m.positions.filter(p => num(p.temp) && num(p.hum));\n        if (pos.length) {\n            let peor = pos[0];\n            pos.forEach(p => { if (peck(p.temp, p.hum) > peck(peor.temp, peor.hum)) peor = p; });\n            const fa = peck(peor.temp, peor.hum) || 0;\n            const tMax = Math.max.apply(null, pos.map(p => p.temp));\n            const hrMax = Math.max.apply(null, pos.map(p => p.hum));\n            const brisa = brisaActiva();\n            I.envejecimiento.horas_eq += fa * dh;\n            I.envejecimiento.horas += dh;\n            if (hrMax > CFG.HR_ALTA) I.corrosion.h_hr60 += dh;\n            if (hrMax > CFG.HR_SAL) I.corrosion.h_hr75 += dh;\n            if (hrMax > CFG.HR_ALTA && brisa) I.corrosion.h_brisa += dh;\n            if (tMax > CFG.T_RECOMENDADA) I.termico.min27 += dmin;\n            if (tMax > CFG.T_PERMITIDA) I.termico.min32 += dmin;\n            // Subida rápida: se cuenta UNA vez por episodio y se clasifica por dónde ocurrió.\n            //   general: todas las posiciones con datos suben (cuarto o aire acondicionado)\n            //   local:   solo algunas suben (equipo o flujo de aire cerca de esa posición)\n            //   sin_comparar: solo hay una posición con datos (no se puede localizar)\n            const nodo = m.node_id;\n            const subieron = pos.filter(p => revisarSubida(nodo + '/' + p.id, p.temp)).map(p => p.id);\n            // lo que se muestra en la página: cuánto subió la posición que más subió en la ventana de 15 min\n            A.subida_15 = Math.max.apply(null, pos.map(p => aumento(nodo + '/' + p.id, p.temp)));\n            const ep = S.episodio[nodo];\n            const ids = pos.map(p => p.id);\n            if (subieron.length && !ep) {\n                // las demás posiciones acompañan si ya subieron al menos la mitad del umbral\n                const acompanan = pos.filter(p => subieron.indexOf(p.id) < 0 && aumento(nodo + '/' + p.id, p.temp) >= CFG.SUBIDA_C / 2).map(p => p.id);\n                const en = subieron.concat(acompanan).sort();\n                const tipo = ids.length < 2 ? 'sin_comparar' : en.length === ids.length ? 'general' : 'local';\n                S.episodio[nodo] = { desde: ahora, posiciones: en, tipo: tipo };\n                I.termico.subidas++;\n                A.subida_ahora = true; A.subida_evento = 'nueva';\n            } else if (subieron.length && ep) {\n                ep.posiciones = ep.posiciones.concat(subieron.filter(x => ep.posiciones.indexOf(x) < 0)).sort();\n                if (ep.tipo === 'local' && ids.every(x => ep.posiciones.indexOf(x) >= 0)) { ep.tipo = 'general'; A.subida_evento = 'ahora_general'; }\n            }\n            if (S.episodio[nodo]) {\n                const e = S.episodio[nodo];\n                I.termico.ultima = { nodo: nodo, tipo: e.tipo, posiciones: e.posiciones, ts: e.desde };\n                A.subida = I.termico.ultima;\n                // termina cuando todas las posiciones se rearmaron\n                if (!A.subida_evento && pos.every(p => S.armado[nodo + '/' + p.id] !== false)) delete S.episodio[nodo];\n            }\n            const margenes = pos.filter(p => num(p.dew_point)).map(p => p.temp - p.dew_point);\n            const margen = margenes.length ? Math.min.apply(null, margenes) : null;\n            const rocio = margen !== null && margen < CFG.MARGEN_ROCIO;\n            if (rocio) I.condensacion.min += dmin;\n            const tasas = pos.filter(p => num(p.rate_c_min)).map(p => p.rate_c_min);\n            Object.assign(A, {\n                factor: fa, f_temp: fTemp(peor.temp), f_hum: fHum(peor.hum), pos_peor: peor.id,\n                t_max: tMax, hr_max: hrMax, tasa: tasas.length ? Math.max.apply(null, tasas) : null,\n                margen_rocio: margen, rocio_rack: rocio\n            });\n        }\n    } else {\n        const P = I.pms;\n        P.tramas++;\n        const pm = [m.pm1_0, m.pm2_5, m.pm10];\n        const hayPm = pm.every(num);\n        let r = 'ok';\n        if (!hayPm) {\n            if ((m.err || []).includes('pms_sin_trama')) { P.perdidas++; r = 'perdida'; }\n        } else {\n            P.horas += dh;\n            P.ugh += m.pm10 * dh;\n            I.polvo.ugh += m.pm10 * dh;\n            if (m.pm1_0 > m.pm2_5 || m.pm2_5 > m.pm10) { P.imposibles++; r = 'imposible'; }\n            const firma = pm.join('/');\n            if (S.pmPrevio && S.pmPrevio.firma === firma) {\n                if (ahora - S.pmPrevio.desde >= CFG.PM_FIJO_MS) P.min_fijo += dmin;\n            } else {\n                S.pmPrevio = { firma: firma, desde: ahora };\n            }\n        }\n        S.ventanaPms.push(r);\n        while (S.ventanaPms.length > VENTANA) S.ventanaPms.shift();\n        const amb = num(m.temp) && num(m.dew_point) ? m.temp - m.dew_point : null;\n        if (amb !== null && amb < CFG.MARGEN_ROCIO) I.condensacion.min += dmin;\n        A.margen_amb = amb;\n        A.pm_confiable = !(num(m.hum) && m.hum > CFG.HR_SAL);\n        A.pm10 = hayPm ? m.pm10 : null;\n    }\n} else {\n    return null;\n}\n\nconst v = S.ventanaPms;\nA.pms_ventana = { n: v.length, perdidas_pct: v.length ? 100 * v.filter(x => x === 'perdida').length / v.length : 0,\n                  imposibles: v.filter(x => x === 'imposible').length };\nconst brisaAhora = brisaActiva();\nA.condiciones = {\n    t27: A.t_max > CFG.T_RECOMENDADA, t32: A.t_max > CFG.T_PERMITIDA,\n    hr60: A.hr_max > CFG.HR_ALTA, hr75: A.hr_max > CFG.HR_SAL,\n    rocio: !!A.rocio_rack || (num(A.margen_amb) && A.margen_amb < CFG.MARGEN_ROCIO),\n    brisa: brisaAhora === true, polvo: num(A.pm10) && A.pm10 >= CFG.PM10_ALTO, flama: !!A.flama\n};\nflow.set(K, S);\nmsg.payload = {\n    indices: S.indices,\n    actual: Object.assign({}, A, { brisa: brisaAhora, viento: S.viento }),\n    bitacora: S.bitacora,\n    aceleracion: ACEL,\n    sim: SIM\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 880,
+    "y": 120,
+    "wires": [
+      [
+        "d47_eval"
+      ]
+    ]
+  },
+  {
+    "id": "d47_eval",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Evaluar umbrales",
+    "func": "// Evaluar umbrales (tarea 4.7). Entradas:\n//   salida de \"Calcular índices\"   (msg.payload.indices; msg.payload.sim indica simulación)\n//   topic 'pronostico'             (salida 2 de \"Leer viento\", o del simulador con msg.sim)\n//   topic 'site/estado/<node_id>'  (MQTT directo: online / offline)\n//   topic 'refrescar'              (el simulador pide redibujar la página al iniciar o detener)\n// Salidas: 1 -> página de mantenimiento   2 -> mensajes para Telegram { payload: { text } }\n// Umbrales: los acumulados NO son norma. REAL = valores iniciales (se ajustan en la tarea 6.5);\n// DEMO = se usan cuando el tiempo va acelerado (simulación o ACELERACION > 1) y se declaran al jurado.\nconst U_REAL = {\n    envejecimiento: { amarillo: 1.5, rojo: 3, horas_min: 24 },   // factor promedio vs 25 °C / 50 %\n    corrosion: { h_hr60: 360, h_hr75: 72, h_brisa: 24 },         // horas\n    polvo: { ugh: 75000 },                                        // µg·h/m³ ≈ 3 meses a 35 µg/m³ de PM10\n    termico: { min27: 600, min32: 60, subidas: 3 },\n    condensacion: { min: 60 },\n    pms: { horas: 26280, perdidas_pct: 5, imposibles: 10, min_fijo: 60, tramas_min: 12 }   // 26 280 h ≈ 3 años\n};\nconst U_DEMO = {\n    envejecimiento: { amarillo: 1.5, rojo: 3, horas_min: 1 },\n    corrosion: { h_hr60: 3, h_hr75: 1, h_brisa: 0.5 },\n    polvo: { ugh: 300 },\n    termico: { min27: 60, min32: 30, subidas: 1 },\n    condensacion: { min: 30 },\n    pms: { horas: 26280, perdidas_pct: 5, imposibles: 3, min_fijo: 60, tramas_min: 6 }\n};\nconst AMARILLO = 0.7;               // carga ≥ 70 % del umbral\nconst ESPERA_MS = 10 * 60000, ESPERA_FLAMA_MS = 2 * 60000, ESPERA_EPISODIO_MS = 30 * 60000;\nconst SUBIDA_VISIBLE_MS = 15 * 60000, SUBIDA_VISIBLE_SIM_MS = 20000;   // cuánto se muestra una subida en \"Atender ahora\"\n// tareas por evento: lo que se muestra en \"Atender ahora\" y se manda por Telegram\nconst ACCION = {\n    flama: 'Verifica el rack de inmediato y ten a mano el extintor',\n    subida: 'Revisa el aire acondicionado y la ventilación del cuarto',\n    t32: 'Revisa el aire acondicionado ya; si no enfría, abre el cuarto o apaga equipos no esenciales',\n    subida_local: 'Revisa el equipo y el flujo de aire cerca de esa posición (rejillas, paneles ciegos, ventiladores)',\n    offline: 'Revisa su alimentación y la conexión Wi-Fi',\n    pms: 'Revisa su conexión o límpialo; si sigue fallando, reemplázalo',\n    rocio: 'Deshumidifica o ventila, y busca puntos fríos'\n};\nconst TXT = {\n    envejecimiento: ['Envejecimiento de equipos', 'Revisar enfriamiento y deshumidificación'],\n    corrosion: ['Corrosión por sal y humedad', 'Inspeccionar y limpiar tarjetas, sellar el cuarto'],\n    polvo: ['Polvo en servidores', 'Limpiar ventiladores y filtros'],\n    termico: ['Eventos de temperatura', 'Revisar el aire acondicionado y su horario'],\n    condensacion: ['Riesgo de condensación', 'Deshumidificar y buscar puntos fríos'],\n    pms: ['Salud del sensor de partículas', 'Limpiar o reemplazar el PMS5003']\n};\n// condiciones que se registran como eventos: [icono, al empezar, al terminar, nivel]\nconst COND = {\n    flama: ['🔥', 'Flama detectada en el rack', 'Flama apagada', 'critico'],\n    t32: ['🌡️', 'Temperatura sobre 32 °C (fuera del rango permitido A1)', 'Temperatura bajó de 32 °C', 'critico'],\n    t27: ['🌡️', 'Temperatura sobre 27 °C (fuera del rango recomendado)', 'Temperatura bajó de 27 °C', 'aviso'],\n    rocio: ['💧', 'Cerca del punto de rocío (riesgo de condensación)', 'Fuera de riesgo de condensación', 'critico'],\n    hr75: ['💦', 'Humedad sobre 75 %: la sal se activa', 'Humedad bajó de 75 %', 'critico'],\n    hr60: ['💦', 'Humedad sobre 60 % (límite ASHRAE)', 'Humedad bajó de 60 %', 'aviso'],\n    brisa: ['🌊', 'Viento del mar con fuerza para llevar sal', 'Terminó el viento del mar', 'info'],\n    polvo: ['🌫️', 'Episodio de polvo (PM10 ≥ 150 µg/m³)', 'Terminó el episodio de polvo', 'aviso'],\n    pms: ['📟', 'Sensor de partículas con fallas', 'Sensor de partículas recuperado', 'aviso']\n};\nconst MODO = flow.get('mvp47modo') || { sim: false };\nconst t = msg.topic || '';\nconst P = msg.payload || {};\nconst SIM = t === 'refrescar' ? MODO.sim === true : (P.sim === true || msg.sim === true);\nif (SIM && !MODO.sim) return null;                       // mensaje de una simulación ya detenida\nconst K = SIM ? 'mvp47alertas_sim' : 'mvp47alertas';\nconst ahora = Date.now();\nconst S = flow.get(K) || { enviado: {}, alertado: {}, desde: {}, cond: {}, condDesde: {}, flama: false, subidas: 0,\n                           pronostico: null, firmaPron: '', nodos: {}, ultimo: null, eventos: [] };\nS.eventos = S.eventos || []; S.cond = S.cond || {}; S.condDesde = S.condDesde || {};\nconst salidaTg = [];\nconst r1 = v => Math.round(v * 10) / 10;\nconst yy = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' y ' + a[a.length - 1] : a.join('');\n// descripción de una subida: dónde fue y qué hacer\nfunction lugarSubida(s) {\n    if (!s) return { donde: '', corto: '', accion: ACCION.subida };\n    const p = s.posiciones || [];\n    if (s.tipo === 'local') return { donde: 'solo en la posición ' + yy(p) + ' del rack', corto: 'local en ' + yy(p),\n        accion: ACCION.subida_local.replace('esa posición', (p.length > 1 ? 'las posiciones ' : 'la posición ') + yy(p)) };\n    if (s.tipo === 'sin_comparar') return { donde: 'en la posición ' + yy(p) + ' (la otra posición no tiene datos)', corto: 'en ' + yy(p), accion: ACCION.subida };\n    return { donde: 'en todo el rack (posiciones ' + yy(p) + ')', corto: 'todo el rack', accion: ACCION.subida };\n}\nconst PREFIJO = SIM ? '[SIMULACIÓN] ' : '';\n\nfunction enviar(clave, texto, espera) {\n    const prev = S.enviado[clave];\n    if (prev && ahora - prev < (espera === undefined ? ESPERA_MS : espera)) return;\n    S.enviado[clave] = ahora;\n    salidaTg.push({ payload: { text: PREFIJO + texto } });\n}\nfunction evento(icono, texto, nivel) {\n    S.eventos.unshift({ ts: ahora, icono: icono, texto: texto, nivel: nivel });\n    S.eventos = S.eventos.slice(0, 20);\n}\nconst nivel = c => c >= 1 ? 'rojo' : c >= AMARILLO ? 'amarillo' : 'verde';\nconst RANGO = { verde: 0, amarillo: 1, rojo: 2 };\n\nfunction pmsFalla(A, U) {\n    const w = A.pms_ventana;\n    return !!w && w.n >= U.pms.tramas_min && (w.perdidas_pct > U.pms.perdidas_pct || w.imposibles >= U.pms.imposibles);\n}\nfunction cargas(I, A, U) {\n    const e = I.envejecimiento, c = I.corrosion, tm = I.termico, p = I.pms, w = A.pms_ventana || { n: 0, perdidas_pct: 0, imposibles: 0 };\n    const ue = U.envejecimiento;\n    const factor = e.horas > 0 ? e.horas_eq / e.horas : 0;\n    const cargaEnv = e.horas < ue.horas_min ? 0\n        : factor >= ue.rojo ? 1\n        : factor >= ue.amarillo ? AMARILLO + (1 - AMARILLO) * (factor - ue.amarillo) / (ue.rojo - ue.amarillo)\n        : AMARILLO * factor / ue.amarillo;\n    const ventanaOk = w.n >= U.pms.tramas_min;\n    return {\n        envejecimiento: { carga: cargaEnv, valor: 'Promedio ' + r1(factor) + '× · ' + r1(e.horas_eq) + ' h equivalentes en ' + r1(e.horas) + ' h' +\n                          (e.horas < ue.horas_min ? ' (se evalúa desde ' + ue.horas_min + ' h)' : '') },\n        corrosion: { carga: Math.max(c.h_hr60 / U.corrosion.h_hr60, c.h_hr75 / U.corrosion.h_hr75, c.h_brisa / U.corrosion.h_brisa),\n                     valor: r1(c.h_hr60) + ' h con HR > 60 % · ' + r1(c.h_hr75) + ' h > 75 % · ' + r1(c.h_brisa) + ' h con brisa marina' },\n        polvo: { carga: I.polvo.ugh / U.polvo.ugh, valor: Math.round(I.polvo.ugh) + ' µg·h/m³ de PM10 acumulado' },\n        termico: { carga: Math.max(tm.min27 / U.termico.min27, tm.min32 / U.termico.min32, tm.subidas / U.termico.subidas),\n                   valor: Math.round(tm.min27) + ' min > 27 °C · ' + Math.round(tm.min32) + ' min > 32 °C · ' + tm.subidas + (tm.subidas === 1 ? ' subida rápida' : ' subidas rápidas') + (tm.ultima ? ' (última: ' + lugarSubida(tm.ultima).corto + ')' : '') },\n        condensacion: { carga: I.condensacion.min / U.condensacion.min, valor: Math.round(I.condensacion.min) + ' min cerca del punto de rocío' },\n        pms: { carga: Math.max(p.horas / U.pms.horas, ventanaOk ? w.perdidas_pct / U.pms.perdidas_pct : 0,\n                               ventanaOk ? w.imposibles / U.pms.imposibles : 0, p.min_fijo / U.pms.min_fijo),\n               valor: 'Ahora (últimas ' + w.n + ' tramas): ' + r1(w.perdidas_pct) + ' % perdidas, ' + w.imposibles + ' imposibles · ' +\n                      Math.round(p.horas) + ' h de uso (' + r1(100 * p.horas / U.pms.horas) + ' % de su vida)' }\n    };\n}\n\nif (P.indices) {\n    const U = P.aceleracion > 1 ? U_DEMO : U_REAL;\n    const A = P.actual || {};\n    const C = cargas(P.indices, A, U);\n    const tarjetas = Object.keys(TXT).map(id => {\n        const est = nivel(C[id].carga);\n        if (S.desde[id] !== P.indices[id].desde) { S.desde[id] = P.indices[id].desde; S.alertado[id] = 'verde'; }  // hubo mantenimiento\n        if (RANGO[est] > RANGO[S.alertado[id] || 'verde']) {     // cada nivel avisa una sola vez por ciclo de mantenimiento\n            S.alertado[id] = est;\n            enviar('indice/' + id + '/' + est, (est === 'rojo' ? '🔴 ' : '🟡 ') + TXT[id][0] + ': ' +\n                   (est === 'rojo' ? 'mantenimiento necesario' : 'acercándose al umbral') + '.\\n' + C[id].valor + '\\nAcción: ' + TXT[id][1], 0);\n        }\n        return { id: id, titulo: TXT[id][0], estado: est, carga: Math.min(C[id].carga, 1.5), valor: C[id].valor, accion: TXT[id][1],\n                 dias: Math.floor((ahora - P.indices[id].desde) / 86400000) };\n    });\n    // condiciones actuales -> eventos de inicio y fin\n    const cond = Object.assign({}, A.condiciones || {}, { pms: pmsFalla(A, U) });\n    Object.keys(COND).forEach(k => {\n        const antes = !!S.cond[k], ya = !!cond[k];\n        if (ya && !antes) { S.condDesde[k] = ahora; evento(COND[k][0], COND[k][1], COND[k][3]); }\n        if (!ya && antes) {\n            const min = Math.round((ahora - (S.condDesde[k] || ahora)) / 60000);\n            evento('✓', COND[k][2] + ' (duró ' + (min < 1 ? 'menos de 1' : min) + ' min)', 'info');\n        }\n        S.cond[k] = ya;\n    });\n    if (A.flama && !S.flama) enviar('flama', '🔥 FLAMA detectada en el rack.\\nAcción: ' + ACCION.flama + '.', ESPERA_FLAMA_MS);\n    if (A.flama !== undefined) S.flama = !!A.flama;\n    if (A.subida_evento && A.subida) {\n        const L = lugarSubida(A.subida);\n        const clave = 'subida/' + A.subida.tipo + '/' + (A.subida.tipo === 'local' ? A.subida.posiciones.join('') : '');\n        if (A.subida_evento === 'nueva') {\n            evento('📈', 'Subida rápida ' + L.donde + ': más de 5 °C en 15 min (máx. ' + r1(A.t_max) + ' °C)', 'critico');\n            enviar(clave, '🌡️ Subida rápida de temperatura ' + L.donde + ': más de 5 °C en 15 min. Temperatura máxima: ' + r1(A.t_max) + ' °C.\\nAcción: ' + L.accion + '.');\n        } else {                                            // empezó en una posición y ya abarca todo el rack\n            evento('📈', 'La subida rápida ahora abarca todo el rack (posiciones ' + yy(A.subida.posiciones) + ')', 'critico');\n            enviar(clave, '🌡️ La subida rápida ahora abarca todo el rack (posiciones ' + yy(A.subida.posiciones) + ').\\nAcción: ' + L.accion + '.');\n        }\n        S.subidaHasta = ahora + (SIM ? SUBIDA_VISIBLE_SIM_MS : SUBIDA_VISIBLE_MS);\n        S.ultSubida = A.subida;\n    }\n    S.tMax = A.t_max;\n    const margenes = [A.margen_rocio, A.margen_amb].filter(x => typeof x === 'number');\n    const margen = margenes.length ? Math.min.apply(null, margenes) : null;\n    if (cond.rocio && S.condDesde.rocio === ahora)\n        enviar('rocio', '💧 Riesgo de condensación: ' + (margen === null ? '' : 'solo ' + r1(margen) + ' °C sobre el punto de rocío.') +\n               '\\nAcción: ' + ACCION.rocio + '.', ESPERA_EPISODIO_MS);\n    if (cond.t32 && S.condDesde.t32 === ahora)\n        enviar('t32', '🌡️ El rack superó 32 °C (fuera del rango permitido A1): ' + r1(A.t_max) + ' °C.\\nAcción: ' + ACCION.t32 + '.', ESPERA_EPISODIO_MS);\n    if (cond.pms && S.condDesde.pms === ahora) {\n        const w = A.pms_ventana || {};\n        enviar('pms', '📟 Sensor de partículas con fallas: ' + r1(w.perdidas_pct || 0) + ' % tramas perdidas y ' + (w.imposibles || 0) +\n               ' valores imposibles en las últimas ' + (w.n || 0) + ' tramas.\\nAcción: ' + ACCION.pms + '.', ESPERA_EPISODIO_MS);\n    }\n    S.ultimo = { tarjetas: tarjetas, actual: A, bitacora: P.bitacora, aceleracion: P.aceleracion };\n} else if (t === 'pronostico') {\n    S.pronostico = P;\n    const firma = P.ok && P.riesgo ? P.ventanas.map(w => w.desde).join(',') : '';\n    if (firma && firma !== S.firmaPron) {\n        evento('🌊', P.texto, 'aviso');\n        enviar('pronostico/' + firma, '🌊 ' + P.texto + ' (' + P.sitio + ')', 0);\n    }\n    S.firmaPron = firma;\n} else if (t.indexOf('site/estado/') === 0) {\n    let p = P;\n    if (typeof p === 'string') { try { p = JSON.parse(p); } catch (e) { return null; } }\n    const id = t.slice('site/estado/'.length);\n    if (!p || p.node_id !== id || (p.status !== 'online' && p.status !== 'offline')) return null;\n    const antes = S.nodos[id];\n    if (p.status !== antes) {\n        if (p.status === 'offline') { evento('⚠️', 'Nodo ' + id + ' desconectado', 'critico'); enviar('offline/' + id, '⚠️ Nodo ' + id + ' desconectado.\\nAcción: ' + ACCION.offline + '.', 0); }\n        else if (antes === 'offline') { evento('✅', 'Nodo ' + id + ' reconectado', 'info'); enviar('online/' + id, '✅ Nodo ' + id + ' reconectado.', 0); }\n    }\n    S.nodos[id] = p.status;\n} else if (t !== 'refrescar') {\n    return null;\n}\n\nflow.set(K, S);\nconst tarjetas = S.ultimo ? S.ultimo.tarjetas : [];\nconst peor = tarjetas.reduce((m, x) => RANGO[x.estado] > RANGO[m] ? x.estado : m, 'verde');\nconst general = S.flama || Object.values(S.nodos).includes('offline') ? 'rojo' : peor;\nconst activos = Object.keys(COND).filter(k => S.cond[k]).map(k => ({ icono: COND[k][0], texto: COND[k][1], nivel: COND[k][3] }));\n// \"Atender ahora\": tareas por evento activas, de la más grave a la menos grave, con su acción\nconst atender = [];\nif (S.flama) atender.push({ id: 'flama', icono: '🔥', texto: 'Flama detectada en el rack', accion: ACCION.flama, nivel: 'critico' });\nObject.keys(S.nodos).filter(k => S.nodos[k] === 'offline').forEach(k =>\n    atender.push({ id: 'offline', icono: '⚠️', texto: 'Nodo ' + k + ' desconectado', accion: ACCION.offline, nivel: 'critico' }));\nif (S.subidaHasta && ahora < S.subidaHasta) {\n    const L = lugarSubida(S.ultSubida);\n    atender.push({ id: 'subida', tipo: S.ultSubida ? S.ultSubida.tipo : 'general', icono: '🌡️', texto: 'Subida rápida de temperatura ' + L.donde,\n                   accion: L.accion, nivel: 'critico' });\n}\nif (S.cond.t32) atender.push({ id: 't32', icono: '🌡️', texto: 'Temperatura sobre 32 °C (' + r1((S.ultimo && S.ultimo.actual.t_max) || 0) + ' °C)', accion: ACCION.t32, nivel: 'critico' });\nif (S.cond.rocio) atender.push({ id: 'rocio', icono: '💧', texto: 'Riesgo de condensación', accion: ACCION.rocio, nivel: 'critico' });\nif (S.cond.pms) atender.push({ id: 'pms', icono: '📟', texto: 'Sensor de partículas con fallas', accion: ACCION.pms, nivel: 'aviso' });\nconst pagina = (SIM === !!MODO.sim) ? {\n    topic: 'tablero',\n    payload: Object.assign({}, S.ultimo || {}, { general: general, pronostico: S.pronostico, nodos: S.nodos,\n        eventos: S.eventos, activos: activos, atender: atender, pms_falla: !!S.cond.pms, modo: { sim: !!MODO.sim, fase: MODO.fase || null } })\n} : null;                                                 // datos reales durante una simulación: solo alertas\nreturn [pagina, salidaTg.length ? salidaTg : null];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1080,
+    "y": 200,
+    "wires": [
+      [
+        "d47_ui"
+      ],
+      [
+        "d47_tg"
+      ]
+    ]
+  },
+  {
+    "id": "d47_tg_prueba",
+    "type": "inject",
+    "z": "d47_tab",
+    "name": "Probar Telegram",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"text\":\"✅ Prueba de alertas del MVP: Telegram funciona.\"}",
+    "payloadType": "json",
+    "x": 1110,
+    "y": 320,
+    "wires": [
+      [
+        "d47_tg"
+      ]
+    ]
+  },
+  {
+    "id": "d47_tg",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Preparar Telegram",
+    "func": "// Preparar Telegram: arma la petición a la API de bots para el nodo http request (POST).\n// El token y el chat NO van en el flujo: se leen de variables de entorno de Node-RED\n//   TELEGRAM_TOKEN   token del bot (de @BotFather)\n//   TELEGRAM_CHAT    id del chat o grupo del equipo\nconst token = env.get('TELEGRAM_TOKEN');\nconst chat = env.get('TELEGRAM_CHAT');\nif (!token || !chat) {\n    node.status({ fill: 'yellow', shape: 'ring', text: 'Telegram sin configurar' });\n    return null;\n}\nconst texto = String((msg.payload && msg.payload.text) || '').slice(0, 4000);\nif (!texto) return null;\nnode.status({ fill: 'green', shape: 'dot', text: 'enviado ' + new Date().toLocaleTimeString('es-MX') });\nreturn {\n    url: 'https://api.telegram.org/bot' + token + '/sendMessage',\n    method: 'POST',\n    headers: { 'content-type': 'application/json' },\n    payload: { chat_id: chat, text: texto }\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1280,
+    "y": 260,
+    "wires": [
+      [
+        "d47_http_tg"
+      ]
+    ]
+  },
+  {
+    "id": "d47_http_tg",
+    "type": "http request",
+    "z": "d47_tab",
+    "name": "API de Telegram",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 1470,
+    "y": 260,
+    "wires": [
+      [
+        "d47_tg_res"
+      ]
+    ]
+  },
+  {
+    "id": "d47_tg_res",
+    "type": "function",
+    "z": "d47_tab",
+    "name": "Resultado Telegram",
+    "func": "// Muestra si Telegram aceptó el mensaje (no imprime la URL: lleva el token)\nif (msg.statusCode === 200 && msg.payload && msg.payload.ok) {\n    node.status({ fill: 'green', shape: 'dot', text: 'entregado' });\n} else {\n    const d = (msg.payload && msg.payload.description) || ('HTTP ' + msg.statusCode);\n    node.status({ fill: 'red', shape: 'ring', text: String(d).slice(0, 60) });\n    node.warn('Telegram no aceptó el mensaje: ' + d);\n}\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1660,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d47_ui",
+    "type": "ui-template",
+    "z": "d47_tab",
+    "group": "d47_g_main",
+    "page": "",
+    "ui": "",
+    "name": "Página de mantenimiento",
+    "order": 1,
+    "width": 12,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div class=\"m47\" v-if=\"msg && msg.payload\">\n    <div class=\"modo\" :class=\"enSim ? 'sim' : 'real'\">\n      <div v-if=\"enSim\">\n        <b>MODO SIMULACIÓN</b>\n        <span v-if=\"fase\"> · Fase {{ fase.n }}/{{ fase.total }}: <b>{{ fase.nombre }}</b> ({{ fase.texto }}) · quedan {{ fase.quedan_s }} s</span>\n        <div class=\"nota claro\">Tiempo acelerado {{ p.aceleracion || 180 }}× (cada fase de 20 s cuenta como 1 h) y umbrales de demostración. Tus acumulados reales no se modifican.</div>\n      </div>\n      <div v-else>\n        <b>Datos reales</b>\n        <span v-if=\"p.aceleracion > 1\"> · MODO DEMO: tiempo acelerado {{ p.aceleracion }}× y umbrales de demostración</span>\n      </div>\n      <button class=\"btn-sim\" @click=\"simular(enSim ? 'detener' : 'iniciar')\">{{ enSim ? 'Detener simulación' : 'Iniciar simulación' }}</button>\n    </div>\n\n    <div v-if=\"!p.tarjetas\" class=\"nota\">{{ enSim ? 'Iniciando la simulación…' : 'Esperando datos de los nodos…' }}</div>\n    <template v-else>\n      <div class=\"fila\">\n        <div class=\"pill\" :class=\"p.general\">Estado general: {{ etiqueta(p.general) }}</div>\n      </div>\n\n      <div v-if=\"p.atender && p.atender.length\" class=\"atender\">\n        <div class=\"tit\">Atender ahora</div>\n        <div v-for=\"(x, i) in p.atender\" :key=\"i\" class=\"linea\" :class=\"[x.nivel, x.id]\">\n          <span class=\"ico\">{{ x.icono }}</span>\n          <div><b>{{ x.texto }}</b><div class=\"que\">→ {{ x.accion }}</div></div>\n        </div>\n      </div>\n\n      <div class=\"banner\" :class=\"p.pronostico ? (p.pronostico.ok ? (p.pronostico.riesgo ? 'amarillo' : 'verde') : 'gris') : 'gris'\">\n        🌊 {{ p.pronostico ? p.pronostico.texto : 'Esperando el pronóstico de viento…' }}\n      </div>\n\n      <div class=\"seccion\">Ahora</div>\n      <div class=\"mosaico\">\n        <div class=\"tile\" :class=\"nivelFactor\">\n          <div class=\"tt\">Envejecimiento de equipos</div>\n          <div class=\"grande\">{{ uno(a.factor) }}×</div>\n          <div class=\"det\">temperatura ×{{ uno(a.f_temp) }} · humedad ×{{ uno(a.f_hum) }}<span v-if=\"a.pos_peor\"> (posición {{ a.pos_peor }})</span></div>\n          <div class=\"det\">1× = equipo a 25 °C y 50 % de humedad</div>\n        </div>\n        <div class=\"tile\" :class=\"nivel(a.hr_max, 60, 75)\">\n          <div class=\"tt\">Humedad en el rack</div>\n          <div class=\"grande\">{{ uno(a.hr_max) }} %</div>\n          <div class=\"det\">límites: 60 % (ASHRAE) · 75 % (la sal se activa)</div>\n          <div class=\"det\">Viento del mar: <b>{{ a.brisa === true ? 'sí' : (a.brisa === false ? 'no' : 'sin datos') }}</b></div>\n        </div>\n        <div class=\"tile\" :class=\"nivel(a.t_max, 27, 32)\">\n          <div class=\"tt\">Temperatura en el rack</div>\n          <div class=\"grande\">{{ uno(a.t_max) }} °C</div>\n          <div class=\"det\">límites: 27 °C (recomendado) · 32 °C (permitido)</div>\n        </div>\n        <div class=\"tile\" :class=\"nivel(a.subida_15, 2.5, 5)\">\n          <div class=\"tt\">Subida de temperatura</div>\n          <div class=\"grande\">+{{ uno(a.subida_15) }} °C</div>\n          <div class=\"det\">en los últimos 15 min{{ enSim ? ' simulados' : '' }} · aviso a más de 5 °C</div>\n          <div class=\"det\">ahora: {{ a.tasa === null || a.tasa === undefined ? '—' : (a.tasa > 0 ? '+' : '') + uno(a.tasa) }} °C/min</div>\n        </div>\n        <div class=\"tile\" :class=\"nivelInverso(margen, 5, 3)\">\n          <div class=\"tt\">Margen a la condensación</div>\n          <div class=\"grande\">{{ uno(margen) }} °C</div>\n          <div class=\"det\">distancia al punto de rocío · riesgo bajo 3 °C</div>\n        </div>\n        <div class=\"tile\" :class=\"nivel(a.pm10, 45, 150)\">\n          <div class=\"tt\">Polvo en el aire (PM10)</div>\n          <div class=\"grande\">{{ a.pm10 === null || a.pm10 === undefined ? '—' : a.pm10 }} <small>µg/m³</small></div>\n          <div class=\"det\">referencias: 45 (OMS) · 150 (EPA)</div>\n          <div class=\"det\" v-if=\"a.pm_confiable === false\">humedad alta: lectura poco confiable</div>\n        </div>\n        <div class=\"tile\" :class=\"p.pms_falla ? 'rojo' : 'verde'\">\n          <div class=\"tt\">Sensor de partículas</div>\n          <div class=\"grande\">{{ p.pms_falla ? 'Falla' : 'OK' }}</div>\n          <div class=\"det\" v-if=\"a.pms_ventana\">{{ uno(a.pms_ventana.perdidas_pct) }} % tramas perdidas · {{ a.pms_ventana.imposibles }} imposibles (últimas {{ a.pms_ventana.n }})</div>\n        </div>\n      </div>\n\n      <div class=\"dos\">\n        <div class=\"caja\">\n          <div class=\"tit\">Activos ahora</div>\n          <div v-if=\"!p.activos || !p.activos.length\" class=\"nota\">Sin condiciones de riesgo en este momento.</div>\n          <span v-for=\"(c, i) in p.activos\" :key=\"i\" class=\"chip\" :class=\"c.nivel\">{{ c.icono }} {{ c.texto }}</span>\n          <div class=\"tit\" style=\"margin-top:12px\">Eventos recientes</div>\n          <div v-if=\"!p.eventos || !p.eventos.length\" class=\"nota\">Todavía no hay eventos.</div>\n          <div v-for=\"(e, i) in (p.eventos || []).slice(0, 12)\" :key=\"i\" class=\"evento\" :class=\"e.nivel\">\n            <span class=\"hora\">{{ hora(e.ts) }}</span> {{ e.icono }} {{ e.texto }}\n          </div>\n        </div>\n        <div class=\"caja\">\n          <div class=\"tit\">Afuera<span v-if=\"p.pronostico && p.pronostico.sitio\"> · {{ p.pronostico.sitio }}</span></div>\n          <template v-if=\"p.pronostico && p.pronostico.ok\">\n            <div class=\"viento\">\n              <span class=\"flecha\" :style=\"{ transform: 'rotate(' + (p.pronostico.actual.dir_deg + 180) + 'deg)' }\">↑</span>\n              <div>\n                <b>{{ p.pronostico.actual.punto }} · {{ Math.round(p.pronostico.actual.vel_kmh) }} km/h</b><br>\n                <span :class=\"p.pronostico.actual.desde_mar ? 'mar' : ''\">{{ p.pronostico.actual.desde_mar ? 'Viento del mar' : 'Viento de tierra' }}</span>\n              </div>\n            </div>\n            <div>{{ p.pronostico.actual.temp }} °C · {{ p.pronostico.actual.hum }} % de humedad</div>\n            <div v-if=\"p.pronostico.costa_km > 0\" class=\"nota\">A unos {{ p.pronostico.costa_km }} km de la costa: el viento del mar llega con menos sal.</div>\n            <div class=\"nota\">Datos: {{ p.pronostico.fuente }}</div>\n          </template>\n          <div v-else class=\"nota\">Sin datos de viento: los índices usan solo los sensores.</div>\n        </div>\n      </div>\n\n      <div class=\"seccion\">Acumulados desde el último mantenimiento</div>\n      <div class=\"tarjetas\">\n        <div class=\"tarjeta\" v-for=\"t in p.tarjetas\" :key=\"t.id\">\n          <div class=\"cab\"><span class=\"punto\" :class=\"t.estado\"></span><b>{{ t.titulo }}</b></div>\n          <div class=\"barra\"><div :class=\"t.estado\" :style=\"{ width: Math.min(100, Math.round(t.carga * 100)) + '%' }\"></div></div>\n          <div class=\"nota\">{{ Math.round(t.carga * 100) }} % del umbral · {{ t.dias }} día(s) desde el último mantenimiento</div>\n          <div class=\"valor\">{{ t.valor }}</div>\n          <div class=\"accion\">Acción: {{ t.accion }}</div>\n          <button @click=\"hecho(t.id, t.titulo)\">Mantenimiento hecho</button>\n        </div>\n      </div>\n\n      <div v-if=\"p.bitacora && p.bitacora.length\" class=\"nota bitacora\">Últimos mantenimientos: {{ ultimos() }}</div>\n      <div class=\"nota\">Riesgo relativo calculado con límites ASHRAE y el modelo de Peck. Los umbrales de los acumulados son valores iniciales, no una norma.</div>\n    </template>\n  </div>\n  <div v-else class=\"nota\">Esperando datos de los nodos…</div>\n</template>\n\n<script>\nexport default {\n  computed: {\n    p () { return (this.msg && this.msg.payload) || {} },\n    a () { return this.p.actual || {} },\n    enSim () { return !!(this.p.modo && this.p.modo.sim) },\n    fase () { return this.p.modo && this.p.modo.fase },\n    offline () { return Object.keys(this.p.nodos || {}).filter(k => this.p.nodos[k] === 'offline') },\n    margen () {\n      const v = [this.a.margen_rocio, this.a.margen_amb].filter(x => typeof x === 'number')\n      return v.length ? Math.min.apply(null, v) : null\n    },\n    nivelFactor () { const f = this.a.factor; return typeof f !== 'number' ? 'gris' : f >= 3 ? 'rojo' : f >= 1.5 ? 'amarillo' : 'verde' }\n  },\n  methods: {\n    uno (v) { return typeof v === 'number' ? (Math.round(v * 10) / 10).toFixed(1) : '—' },\n    nivel (v, amarillo, rojo) { return typeof v !== 'number' ? 'gris' : v > rojo ? 'rojo' : v > amarillo ? 'amarillo' : 'verde' },\n    nivelInverso (v, amarillo, rojo) { return typeof v !== 'number' ? 'gris' : v < rojo ? 'rojo' : v < amarillo ? 'amarillo' : 'verde' },\n    etiqueta (e) { return { verde: 'normal', amarillo: 'atención', rojo: 'acción necesaria' }[e] || e },\n    nombre (id) {\n      const t = (this.p.tarjetas || []).find(x => x.id === id)\n      return t ? t.titulo : id\n    },\n    hora (ts) { return new Date(ts).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) },\n    fecha (ts) { return new Date(ts).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) },\n    ultimos () { return (this.p.bitacora || []).slice(0, 5).map(b => this.nombre(b.indice) + ' (' + this.fecha(b.ts) + ')').join(' · ') },\n    simular (accion) { this.send({ topic: 'sim/control', payload: { accion: accion } }) },\n    hecho (id, titulo) {\n      const donde = this.enSim ? ' de la simulación' : ''\n      if (window.confirm('¿Confirmas el mantenimiento de \"' + titulo + '\"' + donde + '? Su contador vuelve a cero.')) {\n        this.send({ topic: 'mantenimiento', payload: { indice: id } })\n      }\n    }\n  }\n}\n</script>\n\n<style>\n.m47 { width: 100%; font-size: 14px; }\n.m47 .modo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; }\n.m47 .modo.real { background: #eceff1; color: #263238; }\n.m47 .modo.sim { background: #4527a0; color: #fff; }\n.m47 .modo .claro { color: #d1c4e9; }\n.m47 .btn-sim { margin: 0; padding: 8px 14px; border-radius: 4px; border: 1px solid #4527a0; background: #fff; color: #4527a0; font-weight: bold; cursor: pointer; }\n.m47 .fila { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: stretch; }\n.m47 .pill, .m47 .offline { padding: 6px 12px; border-radius: 6px; font-weight: bold; }\n.m47 .pill.verde { background: #e8f5e9; color: #1b5e20; }\n.m47 .pill.amarillo { background: #fff8e1; color: #8a5a00; }\n.m47 .pill.rojo { background: #c62828; color: #fff; }\n.m47 .offline { background: #c62828; color: #fff; }\n.m47 .atender { border: 2px solid #c62828; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; background: #fff; }\n.m47 .atender .tit { color: #b71c1c; font-weight: bold; }\n.m47 .atender .linea { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 6px; margin-top: 6px; }\n.m47 .atender .linea.critico { background: #fdecea; border-left: 6px solid #c62828; }\n.m47 .atender .linea.aviso { background: #fff8e1; border-left: 6px solid #f9a825; }\n.m47 .atender .linea.flama { background: #c62828; color: #fff; font-size: 18px; animation: m47pulso 1s infinite alternate; }\n.m47 .atender .ico { font-size: 22px; line-height: 1.2; }\n.m47 .atender .que { font-size: 14px; margin-top: 2px; }\n@keyframes m47pulso { from { opacity: 1; } to { opacity: 0.75; } }\n.m47 .banner { padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; font-weight: bold; }\n.m47 .banner.verde { background: #e8f5e9; color: #1b5e20; }\n.m47 .banner.amarillo { background: #f9a825; color: #212121; }\n.m47 .banner.gris { background: #eceff1; color: #455a64; }\n.m47 .seccion { font-weight: bold; font-size: 15px; margin: 4px 0 8px; color: #263238; }\n.m47 .mosaico { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; }\n.m47 .tile { border-radius: 6px; padding: 10px 12px; border-left: 6px solid #90a4ae; background: #f5f7f9; }\n.m47 .tile.verde { border-left-color: #2e7d32; background: #edf7ee; }\n.m47 .tile.amarillo { border-left-color: #f9a825; background: #fff8e1; }\n.m47 .tile.rojo { border-left-color: #c62828; background: #fdecea; }\n.m47 .tile .tt { font-size: 12px; color: #455a64; text-transform: uppercase; }\n.m47 .tile .grande { font-size: 30px; font-weight: bold; line-height: 1.2; margin: 4px 0; }\n.m47 .tile.rojo .grande { color: #b71c1c; }\n.m47 .tile.amarillo .grande { color: #8a5a00; }\n.m47 .tile .det { font-size: 12px; color: #455a64; }\n.m47 .dos { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }\n.m47 .caja { flex: 1 1 300px; border: 1px solid #d5dbe3; border-radius: 6px; padding: 10px 12px; }\n.m47 .tit { color: #6b7280; font-size: 12px; text-transform: uppercase; margin-bottom: 6px; }\n.m47 .chip { display: inline-block; padding: 4px 10px; border-radius: 14px; margin: 0 6px 6px 0; font-size: 13px; font-weight: bold; }\n.m47 .chip.critico { background: #c62828; color: #fff; }\n.m47 .chip.aviso { background: #f9a825; color: #212121; }\n.m47 .chip.info { background: #e3f2fd; color: #0b5cab; }\n.m47 .evento { font-size: 13px; padding: 3px 0 3px 8px; border-left: 3px solid #cfd8dc; margin-bottom: 3px; }\n.m47 .evento.critico { border-left-color: #c62828; }\n.m47 .evento.aviso { border-left-color: #f9a825; }\n.m47 .evento.info { border-left-color: #90a4ae; color: #455a64; }\n.m47 .hora { color: #6b7280; font-variant-numeric: tabular-nums; margin-right: 4px; }\n.m47 .viento { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }\n.m47 .flecha { display: inline-block; font-size: 28px; line-height: 1; color: #0b5cab; }\n.m47 .mar { color: #0b5cab; font-weight: bold; }\n.m47 .nota { color: #6b7280; font-size: 12px; margin-top: 4px; }\n.m47 .tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }\n.m47 .tarjeta { border: 1px solid #d5dbe3; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }\n.m47 .cab { display: flex; align-items: center; gap: 8px; }\n.m47 .punto { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }\n.m47 .punto.verde, .m47 .barra .verde { background: #2e7d32; }\n.m47 .punto.amarillo, .m47 .barra .amarillo { background: #f9a825; }\n.m47 .punto.rojo, .m47 .barra .rojo { background: #c62828; }\n.m47 .barra { height: 8px; background: #eceff1; border-radius: 4px; overflow: hidden; }\n.m47 .barra div { height: 100%; }\n.m47 .valor { font-size: 13px; }\n.m47 .accion { font-size: 13px; font-weight: bold; }\n.m47 .tarjeta button { margin-top: 6px; align-self: flex-start; padding: 6px 10px; border: 1px solid #0b5cab; color: #0b5cab; background: #fff; border-radius: 4px; cursor: pointer; }\n.m47 .bitacora { margin-top: 12px; }\n</style>\n",
+    "storeOutMessages": true,
+    "passthru": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 1290,
+    "y": 160,
+    "wires": [
+      [
+        "d47_ind",
+        "d47_sim"
+      ]
+    ]
+  }
+]

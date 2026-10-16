@@ -31,7 +31,7 @@ Las contraseñas se piden por teclado sin mostrarse, o se leen de `SIM_RACK_PASS
 | Escenario | Qué ocurre | Qué permite probar |
 | --- | --- | --- |
 | `normal` | Valores estables con ruido | Dashboard en reposo |
-| `calor` | Temperatura sube hasta unos 2 °C/min en el rack A y 1 °C/min en el ambiente, y luego baja | Alerta por velocidad de cambio, índice de dosis |
+| `calor` | Temperatura sube hasta unos 2 °C/min en el rack A y 1 °C/min en el ambiente, y luego baja | Alerta por velocidad de cambio, índices de mantenimiento |
 | `flama` | `flame: true` en la posición A durante 15 s, repetido cada segundo | Alerta de incendio (estado de flama, no eventos sueltos) |
 | `falla` | Rack B con `null` y `sht41_B_timeout`; ambiente con `pms_sin_trama` | Mensajes con `err` y valores nulos |
 | `caido` | Cierra la conexión sin avisar: el broker publica el LWT `offline`; luego reconecta con `seq` reiniciado | Estado del nodo y reinicios |
