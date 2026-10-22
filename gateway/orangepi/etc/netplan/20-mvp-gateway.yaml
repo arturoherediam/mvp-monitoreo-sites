@@ -1,0 +1,8 @@
+# MVP gateway: IP fija en Ethernet hacia la laptop (ICS 10.42.1.0/24).
+# Se agrega al bloque de Armbian (mismo nombre) para conservar su DHCP.
+network:
+  version: 2
+  ethernets:
+    all-eth-interfaces:
+      addresses:
+        - 10.42.1.2/24
