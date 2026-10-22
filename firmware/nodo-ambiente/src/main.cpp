@@ -33,7 +33,7 @@ const uint8_t OLED_DIR = 0x3C;
 
 // ================= Objetos =================
 WiFiClient red;
-MqttNodo mqtt(red, MQTT_HOST, MQTT_PORT, MQTT_USER, MQTT_PASS, NODE_ID);
+MqttNodo mqtt(red, MQTT_HOST, MQTT_PORT, MQTT_USER, MQTT_PASSWORD, NODE_ID);
 SensirionI2cSht4x sht41;
 Adafruit_SSD1306 pantalla(OLED_ANCHO, OLED_ALTO, &Wire, -1);
 TasaCambio tasa;
