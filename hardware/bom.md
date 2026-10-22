@@ -9,8 +9,8 @@ Anota aquí cada compra o cambio: qué, quién, cuánto, fecha. Las cantidades y
 | OLED SSD1306 128x32 | por confirmar | Equipo | Ya se tiene | | |
 | TCA9548A | por confirmar | Equipo | Ya se tiene | | |
 | PMS5003 con adaptador UART 3.3 V TTL (PicoBlade) | por confirmar | Equipo | Ya se tiene | | |
-| Sensor de flama YG1006 | por confirmar | Luis Mario | Compra el 3 oct | 2026-10-03 | |
-| Sensor de temperatura adicional | por confirmar | Luis Mario | Compra el 3 oct | 2026-10-03 | |
+| Sensor de flama YG1006 (módulo de 4 pines con comparador LM393) | 1 | Luis Mario | Comprado | 2026-10-03 | $44 |
+| Sensor de temperatura adicional (SHT41) | 1 | Luis Mario | Comprado | 2026-10-03 | $125 |
 | Orange Pi Zero 3 | 1 | Arturo | En camino, llega el 10 oct o antes | | |
 | PCB: lote de 2 unidades por diseño (3 diseños) | 6 | Diego | Pendiente (pedido el 20 oct) | | |
 | Carcasas (impresión) | 2 | Diego | Pendiente | | |
