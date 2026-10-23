@@ -20,7 +20,7 @@ Mide temperatura, humedad y partículas del cuarto y las publica por MQTT con el
 | --- | --- | --- |
 | I²C SDA | GPIO 21 | SHT41 y OLED en el mismo bus |
 | I²C SCL | GPIO 22 | |
-| PMS5003 (UART2) | GPIO 16 y 17 | Cuál es RX y cuál TX lo define Sebastián. 9600 baudios |
+| PMS5003 (UART2) | GPIO 16 y 17 | Cuál es RX y cuál TX lo define Sebastián. 9600 baudios. 
 | Alimentación del PMS5003 | 5 V | Rango 4.5 a 5.5 V; la lógica del UART es de 3.3 V |
 
 | Dispositivo I²C | Dirección |
@@ -55,7 +55,7 @@ El gateway usa estos códigos para el índice de salud del PMS5003 (tarea 4.7).
 | --- | --- | --- |
 | `PERIODO_MS` | 5000 | Periodo de publicación (contrato) |
 | `PMS_VIGENCIA_MS` | 3000 | Antigüedad máxima de una trama del PMS5003 |
-| `PMS_USAR_ATM` | `true` | Valores atmosféricos (`true`) o CF=1 (`false`). **Provisional**: decisión pendiente de Priscila |
+| `PMS_USAR_ATM` | `true` | Valores atmosféricos (`true`) o CF=1 (`false`). Decisión: **atmosférico** (issue #31) |
 | `OLED_ALTO` | 64 | Alto de la pantalla en píxeles |
 
 ## Compilar y cargar
@@ -72,9 +72,13 @@ El gateway usa estos códigos para el índice de salud del PMS5003 (tarea 4.7).
 - Lector del PMS5003: `test/test_pms5003` (`pio test`).
 - Librería común: pruebas del punto de rocío (25 °C y 60 % dan 16.7 °C; 30 °C y 70 % dan 23.9 °C).
 - Contrato: `python3 tools/validar_ejemplos.py` y el simulador (`tools/simulador/`).
+## Monitor serie
+
+En cada ciclo de 5 s, el monitor serie muestra si el mensaje se envió y el estado de cada sensor:
 
 ## Pendientes
 
-- **PMS5003:** el sensor actual no funciona; se pidió un reemplazo. La lectura de partículas se valida con hardware en la tarea 6.4.
-- Decidir CF=1 o atmosférico (`PMS_USAR_ATM`).
+- **PMS5003:** llegó el sensor de repuesto; falta validar la lectura de partículas con hardware (tareas 6.2 y 6.4).
+- Verificar con el sensor nuevo que los valores atmosféricos y CF=1 se comporten como se espera.
 - Confirmar pines (RX y TX del PMS5003) con la PCB final (2.6).
+- El campo `sensors` del estado de `amb-01` aún no está documentado en `docs/acuerdos/contrato-json.md`.
