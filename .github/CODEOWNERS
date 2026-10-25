@@ -5,6 +5,7 @@
 /firmware/nodo-rack/        @LuisMho06
 /firmware/nodo-ambiente/    @priscilasosa
 /gateway/                   @arturoherediam
+/hardware/altium/           @sebastianhzaquino-cloud @DiegoLop3z
 /hardware/pcb-sensores/     @sebastianhzaquino-cloud @DiegoLop3z
 /hardware/pcb-nodo-rack/    @sebastianhzaquino-cloud @DiegoLop3z
 /hardware/pcb-nodo-ambiente/ @sebastianhzaquino-cloud @DiegoLop3z
