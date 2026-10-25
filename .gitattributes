@@ -1,0 +1,9 @@
+*.SchDoc  binary
+*.PcbDoc  binary
+*.SchLib  binary
+*.PcbLib  binary
+*.BomDoc  text eol=crlf
+*.PrjPcb  text eol=crlf
+*.zip     binary
+*.pdf     binary
+*.png     binary
