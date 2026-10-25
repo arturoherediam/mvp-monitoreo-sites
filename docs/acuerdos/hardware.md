@@ -44,8 +44,8 @@ En el diseño final de las PCB algunos pines y canales del multiplexor cambiaron
 
 | Señal / Función | En protoboard (actual en código) | **En PCB final (esquemático)** | Cambio requerido en `src/main.cpp` |
 | --- | --- | --- | --- |
-| **I2C SDA** (`GY-SHT41` `U9` y OLED `P2` pin 4) | `GPIO 21` (`PIN_SDA = 21`) | **`D22` (`GPIO 22`)** | ⚠️ **Invertido:** cambiar `PIN_SDA = 22` |
-| **I2C SCL** (`GY-SHT41` `U9` y OLED `P2` pin 3) | `GPIO 22` (`PIN_SCL = 22`) | **`D21` (`GPIO 21`)** | ⚠️ **Invertido:** cambiar `PIN_SCL = 21` |
+| **I2C SDA** (`GY-SHT41` `U9` y OLED `P2` pin 4) | `GPIO 21` (`PIN_SDA = 21`) | **`D21` (`GPIO 21`)** | ✅ Sin cambio (`PIN_SDA = 21`) |
+| **I2C SCL** (`GY-SHT41` `U9` y OLED `P2` pin 3) | `GPIO 22` (`PIN_SCL = 22`) | **`D22` (`GPIO 22`)** | ✅ Sin cambio (`PIN_SCL = 22`) |
 | **UART2 hacia `PMS_Adaptor` (`U10`)** | `PMS_RX = 16`, `PMS_TX = 17` | Red `TX` en **`TX2` (`GPIO 17`)** → pin `RX` de `U10`<br>Red `RX` en **`RX2` (`GPIO 16`)** → pin `TX` de `U10` | ✅ Confirmado: `PMS_RX = 16` y `PMS_TX = 17` (nota: verificar en el arnés físico del adaptador que el pin `TX` del sensor llegue a `GPIO 16`) |
 | **Alimentación 5 V (`J3` USB Tipo A)** | 5 V | `VBUS` (`+5V`) alimenta `VCC` de `U10` (`PMS_Adaptor`) | — |
 
