@@ -23,7 +23,7 @@ const uint32_t PERIODO_MS      = 5000;  // nodo ambiente: cada 5 s (contrato)
 const uint32_t PMS_VIGENCIA_MS = 3000;  // si la ultima trama es mas vieja, se considera "sin trama"
 
 // ================= PMS5003: CF=1 o atmosferico =================
-// DECISION PENDIENTE de Priscila (fecha limite 13 oct). Valor PROVISIONAL:
+// Decision de Priscila (issue 6.2): valores atmosfericos.
 const bool PMS_USAR_ATM = true;
 
 // ================= OLED =================
@@ -41,6 +41,8 @@ Pms5003Parser pms;
 
 // ================= Estado =================
 uint32_t seq = 0;                       // el primer mensaje publicado lleva seq = 1
+uint32_t enviados = 0;                  // mensajes publicados con exito
+uint32_t noEnviados = 0;                // lecturas que no se pudieron publicar
 uint32_t ultimaLecturaMs = 0;
 uint32_t ultimaTramaPmsMs = 0;
 bool oledOk = false;
@@ -109,10 +111,36 @@ void definirEstado(bool shtOk, bool pmsOk) {
   Serial.println(buf);
 }
 
+// ---------- Monitor serie: estado de cada sensor ----------
+void imprimirSensores(const Lectura& l) {
+  Serial.print(" | SHT41: ");
+  if (l.shtOk) {
+    Serial.print("OK (T="); Serial.print(l.temp, 2);
+    Serial.print(" C, HR="); Serial.print(l.hum, 1); Serial.print(" %)");
+  } else {
+    Serial.print("SIN DATOS (sht41_timeout)");
+  }
+  Serial.print(" | PMS5003: ");
+  if (l.pmsOk) {
+    Serial.print("OK (PM2.5="); Serial.print(l.pm25); Serial.print(")");
+  } else {
+    Serial.print("SIN DATOS (pms_sin_trama)");
+  }
+}
+
+void imprimirContadores() {
+  Serial.print(" | enviados="); Serial.print(enviados);
+  Serial.print(" no_enviados="); Serial.println(noEnviados);
+}
+
 // ---------- Telemetria (armada por Contrato, publicada por MqttNodo) ----------
 void publicar(const Lectura& l, uint32_t ahora) {
   if (!mqtt.conectado()) {
-    Serial.println("Sin MQTT: lectura NO publicada");
+    noEnviados++;
+    Serial.print("[NO ENVIADO] Sin conexion MQTT");
+    Serial.print(WiFi.status() == WL_CONNECTED ? " (WiFi OK, broker no responde)" : " (sin WiFi)");
+    imprimirSensores(l);
+    imprimirContadores();
     return;
   }
 
@@ -138,13 +166,25 @@ void publicar(const Lectura& l, uint32_t ahora) {
   uint32_t siguiente = seq + 1;            // contrato: empieza en 1 y sube en cada publicacion
   size_t n = armarTelemetriaAmbiente(buf, sizeof(buf), NODE_ID, siguiente, ahora / 1000, la);
   if (n == 0) {
-    Serial.println("ERROR: el JSON no cabe en el buffer");
+    noEnviados++;
+    Serial.print("[NO ENVIADO] El JSON no cabe en el buffer");
+    imprimirContadores();
     return;
   }
-  seq = siguiente;
 
   bool ok = mqtt.publicarTelemetria(buf);
-  Serial.print(ok ? "PUB OK: " : "PUB FALLO: ");
+  if (ok) {
+    seq = siguiente;                       // solo sube si de verdad se publico
+    enviados++;
+    Serial.print("[ENVIADO] seq="); Serial.print(seq);
+  } else {
+    noEnviados++;
+    Serial.print("[NO ENVIADO] Fallo al publicar");
+  }
+  imprimirSensores(l);
+  imprimirContadores();
+
+  Serial.print("   JSON: ");
   Serial.println(buf);
 }
 
@@ -247,7 +287,7 @@ void setup() {
   // WiFi (lo maneja este programa)
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Conectando a WiFi: ");
   Serial.println(WIFI_SSID);
 
