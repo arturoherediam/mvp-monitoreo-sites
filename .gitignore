@@ -35,3 +35,19 @@ __pycache__/
 # --- Sistema ---
 .DS_Store
 Thumbs.db
+
+# --- Altium Designer ---
+**/History/
+**/__Previews/
+**/Project Logs*/
+**/Project Outputs*/
+**/CompareHistory/
+*.PrjPcbStructure
+*.PrjMbdStructure
+*.SchDocPreview
+*.PcbDocPreview
+*.PcbDoc.htm
+*.ldb
+*.metadata
+*.$$$
+~$*

@@ -29,11 +29,12 @@ gateway/node-red/         flujos exportados (sin credenciales)
 gateway/mosquitto/        configuración y ACL de ejemplo (sin contraseñas)
 gateway/scripts/          hotspot, ICS, respaldo
 gateway/db/               esquema de SQLite
-hardware/pcb-sensores/    diseño 1
-hardware/pcb-nodo-rack/   diseño 2
-hardware/pcb-nodo-ambiente/ diseño 3
-hardware/carcasas/        CAD y archivos de impresión
-hardware/bom.md           lista de materiales y compras
+hardware/altium/          proyecto de Altium Designer (3 esquemáticos, 3 PCB y librerías)
+hardware/pcb-sensores/    diseño 1: esquemático en PDF, vista 3D y Gerbers
+hardware/pcb-nodo-rack/   diseño 2: esquemático en PDF, vista 3D y Gerbers
+hardware/pcb-nodo-ambiente/ diseño 3: esquemático en PDF, vista 3D y Gerbers
+hardware/carcasas/        medidas, materiales e imágenes de las carcasas
+hardware/bom.md           lista de materiales por placa y registro de compras
 tools/                    simulador, validador de ejemplos, scripts del repo
 ```
 
@@ -42,10 +43,10 @@ tools/                    simulador, validador de ejemplos, scripts del repo
 | Persona | Responsabilidad |
 | --- | --- |
 | Arturo | Gateway (Orange Pi), laptop, Node-RED, repositorio e integración |
-| Diego | Carcasas, fabricación y ensamble de PCB |
+| Diego | PCB del nodo ambiente, revisión final del hardware, carcasas, fabricación y ensamble |
 | Priscila | Nodo ambiente y librería común de firmware |
 | Luis Mario | Nodo rack y sensor de flama |
-| Sebastián | Diseño de las 3 PCB |
+| Sebastián | Esquemáticos de los 3 nodos, PCB de sensores y PCB del nodo rack |
 
 ## Cómo empezar
 
@@ -53,6 +54,7 @@ tools/                    simulador, validador de ejemplos, scripts del repo
 2. Busca tus tareas en los issues (cada tarea del WBS es un issue con título `[ID] tarea`).
 3. **Firmware:** copia `include/secrets.example.h` a `include/secrets.h` (ignorado por Git) y llénalo desde 1Password.
 4. **Contrato JSON:** cualquier mensaje que publiques debe pasar `python3 tools/validar_ejemplos.py` (ver `docs/acuerdos/contrato-json.md`).
+5. **Hardware:** abre `hardware/altium/MVP_Monitoreo.PrjPcb` con Altium Designer desde tu clon del repo. Cada placa tiene su esquemático en PDF, vista 3D y Gerbers en `hardware/pcb-*/` (ver `hardware/altium/README.md`).
 
 ## Reglas que no se negocian
 

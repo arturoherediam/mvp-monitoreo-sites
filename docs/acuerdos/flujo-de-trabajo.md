@@ -9,4 +9,5 @@
 - **Cambios al contrato JSON:** solo por pull request a `docs/acuerdos/contrato-json.md`, aprobado por Arturo, Luis Mario y Priscila.
 - **Congelamiento v1.0 el 16 de noviembre de 2026:** después de esa fecha solo entran correcciones de errores con 2 aprobaciones. El tag `v1.0` se pone ese día.
 - **Compras y cambios de hardware:** se anotan en `hardware/bom.md` (qué, quién, cuánto, fecha).
+- **Archivos de Altium Designer:** los archivos `.SchDoc` y `.PcbDoc` son binarios y no se pueden fusionar automáticamente; un documento lo edita una sola persona a la vez y se avisa en el issue correspondiente.
 - **Si te atrasas:** avisa en el issue el mismo día, con cuántos días y por qué. Las tareas de la ruta crítica se avisan además al equipo.
