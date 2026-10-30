@@ -210,7 +210,18 @@ Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depur
 
 Comprobar: `systemctl list-timers hotspot-watchdog.timer` y `sudo journalctl -t hotspot-watchdog` (cada reinicio que hizo).
 
-**Pendiente:** prueba larga (varias horas) para ver si la falla vuelve sin Bluetooth y cuántas veces actuó la vigilancia. Si la falla sigue y el reinicio de hostapd deja de bastar, el siguiente paso sería recargar el driver o un adaptador Wi-Fi USB con modo AP.
+**Segunda caída (21:12) y causa real: la antena.** Al mover la laptop y los nodos, los dos nodos salieron del Wi-Fi en el mismo segundo y ni el teléfono veía la red; dos reinicios de hostapd no la recuperaron. **Al acomodar la antena volvieron.** La Orange Pi Zero 3 no tiene antena integrada: usa una externa en un conector u.FL de la placa, que se afloja fácil. Es probable que la caída de las 19:43 haya tenido la misma causa.
+
+**Prueba larga (29 al 30 oct, sin mover nada):** unas 10.5 h sin reinicios de la vigilancia y con los dos nodos conectados al final (`num_sta[0]=2`).
+
+**Cuidar la antena:**
+- Asegurar el conector u.FL con un poco de cinta o una gota de silicón caliente en el borde, sin tapar el contacto ni jalar el cable.
+- Fijar el cable de la antena a la caja de la Orange Pi (la caja de acrílico que vino con la placa) para que moverla no lo jale.
+- Antena vertical, a la vista y lejos de metal (laptop, rack, monitor).
+
+**Si los nodos se desconectan, revisar en este orden:** (1) la antena y su conector; (2) que un teléfono a 30 cm vea `ESP32-Proyecto`; (3) `sudo hostapd_cli -i wlan0 status` y `sudo journalctl -t hotspot-watchdog`. La vigilancia y el Bluetooth apagado se quedan: cubren una caída del chip, pero no pueden arreglar una antena floja.
+
+Si alguna vez la caída vuelve con la antena bien y el reinicio de hostapd no basta, el siguiente paso sería recargar el driver o usar un adaptador Wi-Fi USB con modo AP y driver del kernel (por ejemplo, chips RT5370/RT5372 con `rt2800usb` o MT7610U/MT7612U con `mt76`).
 
 ## Uso diario
 
@@ -232,6 +243,7 @@ Comprobar: `systemctl list-timers hotspot-watchdog.timer` y `sudo journalctl -t 
 - **Instalador de Node-RED:** el script cambió de nombre a `install-update-nodered-deb`; el anterior (`update-nodejs-and-nodered-deb`) ya da *Not Found*.
 - **Node-RED 5:** `admin init` escribe `settings.js` con otro formato y con `uiHost: "127.0.0.1"`. `configurar_settings.py` ya tolera el formato nuevo; `uiHost` se cambia con `sed`.
 - **Revisar la herramienta antes de confiar en ella:** `iw station dump` daba 0 con nodos conectados. Antes de automatizar una decisión, comparar la medida con otra fuente (aquí, `hostapd_cli` y el registro de hostapd).
+- **Antena primero:** dos nodos que se caen en el mismo segundo y un teléfono que no ve la red apuntan a algo físico (antena u.FL floja), no al software.
 - **El hotspot puede caer sin avisar:** `state=ENABLED` no garantiza que transmita. Lo que sí lo confirma es que un teléfono vea la red o que haya dispositivos conectados (`num_sta`).
 - **`sudo` y pegar varias líneas:** si `sudo` pide contraseña a mitad de un bloque, toma las líneas pegadas como contraseña. Correr `sudo -v` antes.
 - **Mosquitto en Debian** escribe conexiones y desconexiones en `/var/log/mosquitto/mosquitto.log`, no en `journalctl`.
