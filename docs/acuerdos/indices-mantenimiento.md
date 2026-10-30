@@ -39,6 +39,7 @@ Lecturas de partículas con HR > 75 % se marcan como **poco confiables** (las pa
 - **Preventivas:** pronóstico de brisa marina con humedad alta; índice que llega a su umbral.
 - Cada nivel (amarillo, rojo) de un índice avisa **una vez por ciclo de mantenimiento**; flama, subidas, nodos y pronóstico avisan una vez por evento. Condensación y sensor de partículas avisan al empezar cada episodio, como máximo uno cada 30 min.
 - El token del bot va en una **variable de entorno**, nunca en el flujo ni en el repo.
+- **Sin internet no se pierden:** los avisos esperan en una cola guardada en disco y se reintentan a los 15 s, 1 min y luego cada 5 min, en orden y de a uno. Si salen más de 1 min tarde llevan **[retrasado, HH:MM]** con su hora original. Se descartan (y se registra) si pasan 2 h sin enviarse, si la cola pasa de 50 o si Telegram los rechaza (token o chat incorrectos). Las alertas en pantalla no dependen de internet.
 
 ## Dashboard: pestaña Mantenimiento
 

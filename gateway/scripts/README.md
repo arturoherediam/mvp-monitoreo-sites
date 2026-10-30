@@ -13,15 +13,15 @@ nmcli device wifi connect "<hotspot del celular>" --ask   # por Wi-Fi, no por US
 nmcli connection up "<red de siempre>"                    # para regresar
 ```
 
-No hay que tocar la Orange Pi. El primer aviso de Telegram justo después del cambio puede fallar; usar **Probar Telegram** (pestaña 4.7) para confirmar.
+No hay que tocar la Orange Pi. Si un aviso de Telegram falla durante el cambio, se reintenta solo (el nodo "Telegram: cola y reintentos" muestra cuántos esperan); **Probar Telegram** (pestaña 4.7) confirma que ya hay salida.
 
 Sin internet en absoluto, el monitoreo sigue completo (nodos, dashboard, histórico y alertas en pantalla); solo faltan viento y Telegram.
 
 ## Revisión del gateway
 
-`gateway/orangepi/usr/local/sbin/revisar-gateway.sh` solo lee y resume en una pantalla: servicios, hotspot y dispositivos, reinicios automáticos del día, conexiones MQTT, última escritura del histórico, hora, internet, RAM, microSD y temperatura. Termina en **TODO LISTO** o **HAY PUNTOS QUE REVISAR**.
+`gateway/orangepi/usr/local/sbin/revisar-gateway.sh` solo lee y resume en una pantalla: servicios, hotspot y dispositivos, reinicios automáticos de la última hora (y el total del día, como dato), conexiones MQTT, última escritura del histórico, hora, internet, RAM, microSD y temperatura. Termina en **TODO LISTO** o **HAY PUNTOS QUE REVISAR**.
 
-Instalarlo (una vez):
+Instalarlo o actualizarlo:
 
 ```bash
 # Laptop, desde la raíz del repo:

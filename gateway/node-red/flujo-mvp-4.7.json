@@ -365,15 +365,15 @@
     "id": "d47_tg",
     "type": "function",
     "z": "d47_tab",
-    "name": "Preparar Telegram",
-    "func": "// Preparar Telegram: arma la petición a la API de bots para el nodo http request (POST).\n// El token y el chat NO van en el flujo: se leen de variables de entorno de Node-RED\n//   TELEGRAM_TOKEN   token del bot (de @BotFather)\n//   TELEGRAM_CHAT    id del chat o grupo del equipo\nconst token = env.get('TELEGRAM_TOKEN');\nconst chat = env.get('TELEGRAM_CHAT');\nif (!token || !chat) {\n    node.status({ fill: 'yellow', shape: 'ring', text: 'Telegram sin configurar' });\n    return null;\n}\nconst texto = String((msg.payload && msg.payload.text) || '').slice(0, 4000);\nif (!texto) return null;\nnode.status({ fill: 'green', shape: 'dot', text: 'enviado ' + new Date().toLocaleTimeString('es-MX') });\nreturn {\n    url: 'https://api.telegram.org/bot' + token + '/sendMessage',\n    method: 'POST',\n    headers: { 'content-type': 'application/json' },\n    payload: { chat_id: chat, text: texto }\n};\n",
+    "name": "Telegram: cola y reintentos",
+    "func": "// Telegram con cola y reintentos (corrección del 30 oct).\n// Recibe: (1) avisos nuevos {payload: {text}}, (2) el resultado de cada envío {topic: 'tg-resultado'}\n// y (3) un pulso cada 15 s {topic: 'tg-pulso'}. Envía de a uno y en orden al nodo http request.\n// Si un envío falla (sin internet, cambio de red), reintenta a los 15 s, 1 min y luego cada 5 min.\n// La cola vive en el contexto del flujo (se guarda en disco): sobrevive a un reinicio de Node-RED.\n// Un aviso que sale más de 1 min tarde lleva \"[retrasado, HH:MM]\" con su hora original.\n// El token y el chat NO van en el flujo: variables de entorno TELEGRAM_TOKEN y TELEGRAM_CHAT.\nconst ESPERAS = [15000, 60000, 300000];   // espera después del 1.º, 2.º y 3.º fallo (luego, 5 min)\nconst VIGENCIA = 2 * 3600000;             // un aviso con más de 2 h sin enviarse se descarta\nconst MAXIMO = 50;                        // avisos en cola como máximo\nconst SIN_RESPUESTA = 30000;              // si un envío no responde en 30 s, se da por fallido\nconst token = env.get('TELEGRAM_TOKEN');\nconst chat = env.get('TELEGRAM_CHAT');\nif (!token || !chat) {\n    node.status({ fill: 'yellow', shape: 'ring', text: 'Telegram sin configurar' });\n    return null;\n}\nconst ahora = Date.now();\nconst antes = JSON.stringify(flow.get('mvp47tg') || null);\nconst E = flow.get('mvp47tg') || { cola: [], sig: 1, enviando: null, desde: 0 };\nconst hora = t => new Date(t).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });\nconst espera = n => ESPERAS[Math.min(n - 1, ESPERAS.length - 1)];\n\nif (msg.topic === 'tg-resultado') {\n    const r = msg.tg || {};\n    if (E.enviando === r.id) E.enviando = null;\n    const i = E.cola.findIndex(x => x.id === r.id);\n    if (i >= 0) {\n        if (r.ok) E.cola.splice(i, 1);\n        else if (r.permanente) { node.warn('Telegram rechazó el aviso y se descarta (' + r.detalle + '): ' + E.cola[i].texto.slice(0, 80)); E.cola.splice(i, 1); }\n        else { E.cola[i].intentos++; E.cola[i].proximo = ahora + espera(E.cola[i].intentos); E.error = r.detalle; }\n    }\n} else if (msg.topic !== 'tg-pulso') {\n    const texto = String((msg.payload && msg.payload.text) || '').slice(0, 4000);\n    if (texto) {\n        E.cola.push({ id: E.sig++, texto: texto, t0: ahora, intentos: 0, proximo: ahora });\n        while (E.cola.length > MAXIMO) { const d = E.cola.shift(); node.warn('Cola de Telegram llena: se descarta el aviso de las ' + hora(d.t0)); }\n    }\n}\nE.cola = E.cola.filter(x => {\n    if (ahora - x.t0 <= VIGENCIA) return true;\n    node.warn('Aviso de Telegram sin enviar por más de 2 h, se descarta: ' + x.texto.slice(0, 80));\n    if (E.enviando === x.id) E.enviando = null;\n    return false;\n});\nif (E.enviando !== null && ahora - E.desde > SIN_RESPUESTA) {      // envío perdido (p. ej. reinicio a mitad)\n    const x = E.cola.find(y => y.id === E.enviando);\n    if (x) { x.intentos++; x.proximo = ahora + espera(x.intentos); }\n    E.enviando = null;\n}\nlet salida = null;\nconst h = E.cola[0];\nif (E.enviando === null && h && h.proximo <= ahora) {\n    E.enviando = h.id; E.desde = ahora;\n    const tarde = ahora - h.t0 > 60000;\n    salida = {\n        url: 'https://api.telegram.org/bot' + token + '/sendMessage',\n        method: 'POST',\n        headers: { 'content-type': 'application/json' },\n        requestTimeout: 20000,\n        payload: { chat_id: chat, text: (tarde ? '[retrasado, ' + hora(h.t0) + '] ' : '') + h.texto },\n        tg: { id: h.id }\n    };\n}\nif (!E.cola.length) delete E.error;\nif (JSON.stringify(E) !== antes) flow.set('mvp47tg', E);     // escribe solo si cambió (cuida la microSD)\nconst n = E.cola.length;\nif (!n) node.status({ fill: 'green', shape: 'dot', text: 'al día' });\nelse if (E.enviando !== null) node.status({ fill: 'blue', shape: 'dot', text: 'enviando · en cola: ' + n });\nelse node.status({ fill: 'red', shape: 'ring', text: 'sin enviar: ' + n + ' · reintento ' + new Date(E.cola[0].proximo).toLocaleTimeString('es-MX') });\nreturn salida;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1280,
+    "x": 1300,
     "y": 260,
     "wires": [
       [
@@ -397,7 +397,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 1470,
+    "x": 1500,
     "y": 260,
     "wires": [
       [
@@ -410,17 +410,48 @@
     "type": "function",
     "z": "d47_tab",
     "name": "Resultado Telegram",
-    "func": "// Muestra si Telegram aceptó el mensaje (no imprime la URL: lleva el token)\nif (msg.statusCode === 200 && msg.payload && msg.payload.ok) {\n    node.status({ fill: 'green', shape: 'dot', text: 'entregado' });\n} else {\n    const d = (msg.payload && msg.payload.description) || ('HTTP ' + msg.statusCode);\n    node.status({ fill: 'red', shape: 'ring', text: String(d).slice(0, 60) });\n    node.warn('Telegram no aceptó el mensaje: ' + d);\n}\nreturn null;",
+    "func": "// Resultado del envío a Telegram: lo regresa a la cola (\"Telegram: cola y reintentos\").\n// No imprime la URL (lleva el token). Errores 4xx (salvo 429) son permanentes: el aviso se descarta.\nconst ok = msg.statusCode === 200 && !!msg.payload && msg.payload.ok === true;\nconst codigo = Number(msg.statusCode);\nconst detalle = String((msg.payload && msg.payload.description) || ('HTTP ' + msg.statusCode)).slice(0, 120);\nconst permanente = !ok && codigo >= 400 && codigo < 500 && codigo !== 429;\nif (ok) node.status({ fill: 'green', shape: 'dot', text: 'entregado ' + new Date().toLocaleTimeString('es-MX') });\nelse {\n    node.status({ fill: 'red', shape: 'ring', text: detalle.slice(0, 60) });\n    node.warn('Telegram no aceptó el aviso: ' + detalle + (permanente ? ' (se descarta)' : ' (se reintentará)'));\n}\nreturn { topic: 'tg-resultado', tg: { id: msg.tg && msg.tg.id, ok: ok, permanente: permanente, detalle: detalle } };\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1660,
+    "x": 1690,
     "y": 260,
     "wires": [
-      []
+      [
+        "d47_tg"
+      ]
+    ]
+  },
+  {
+    "id": "d47_tg_pulso",
+    "type": "inject",
+    "z": "d47_tab",
+    "name": "Reintentos cada 15 s",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "15",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "5",
+    "topic": "tg-pulso",
+    "payload": "",
+    "payloadType": "date",
+    "x": 1110,
+    "y": 380,
+    "wires": [
+      [
+        "d47_tg"
+      ]
     ]
   },
   {

@@ -66,17 +66,10 @@ fn("d47_eval", "Evaluar umbrales", code('evaluar.js'), 2, 1080, 200, [["d47_ui"]
 add({"id": "d47_tg_prueba", "type": "inject", "z": TAB, "name": "Probar Telegram", "props": [{"p": "payload"}],
      "repeat": "", "crontab": "", "once": False, "onceDelay": 0.1, "topic": "", "payload": "{\"text\":\"✅ Prueba de alertas del MVP: Telegram funciona.\"}",
      "payloadType": "json", "x": 1110, "y": 320, "wires": [["d47_tg"]]})
-fn("d47_tg", "Preparar Telegram", code('telegram.js'), 1, 1280, 260, [["d47_http_tg"]])
-http("d47_http_tg", "API de Telegram", 1470, 260, [["d47_tg_res"]])
-fn("d47_tg_res", "Resultado Telegram", """// Muestra si Telegram aceptó el mensaje (no imprime la URL: lleva el token)
-if (msg.statusCode === 200 && msg.payload && msg.payload.ok) {
-    node.status({ fill: 'green', shape: 'dot', text: 'entregado' });
-} else {
-    const d = (msg.payload && msg.payload.description) || ('HTTP ' + msg.statusCode);
-    node.status({ fill: 'red', shape: 'ring', text: String(d).slice(0, 60) });
-    node.warn('Telegram no aceptó el mensaje: ' + d);
-}
-return null;""", 1, 1660, 260, [[]])
+fn("d47_tg", "Telegram: cola y reintentos", code('telegram.js'), 1, 1300, 260, [["d47_http_tg"]])
+http("d47_http_tg", "API de Telegram", 1500, 260, [["d47_tg_res"]])
+fn("d47_tg_res", "Resultado Telegram", code('resultado-telegram.js'), 1, 1690, 260, [["d47_tg"]])
+inject("d47_tg_pulso", "Reintentos cada 15 s", "tg-pulso", "15", 1110, 380, [["d47_tg"]], delay="5")
 
 TPL = code('pagina.vue')
 add({"id": "d47_ui", "type": "ui-template", "z": TAB, "group": GROUP, "page": "", "ui": "", "name": "Página de mantenimiento", "order": 1,

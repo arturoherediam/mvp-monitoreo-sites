@@ -11,7 +11,8 @@ Código fuente del flujo `../flujo-mvp-4.7.json`. Qué calcula y por qué: [docs
 | `evaluar.js` | Evaluar umbrales (semáforos, eventos y avisos; umbrales reales y de demostración) |
 | `simulador.js` | Simulador (botón "Iniciar simulación" de la página) |
 | `pagina.vue` | Plantilla de la página de mantenimiento |
-| `telegram.js` | Preparar Telegram |
+| `telegram.js` | Telegram: cola y reintentos (un envío a la vez, en orden; reintenta a los 15 s, 1 min y cada 5 min; descarta a las 2 h) |
+| `resultado-telegram.js` | Resultado Telegram (regresa el resultado a la cola; errores 4xx, salvo 429, se descartan) |
 | `gen47.py` | Genera `../flujo-mvp-4.7.json` con el código de arriba (opción `--base` para el id del dashboard) |
 | `configurar_settings.py` | Prepara `settings.js` de Node-RED (contexto en disco y variables de Telegram) |
 | `*.test.js` | Pruebas: no requieren Node-RED ni internet |
@@ -22,6 +23,10 @@ Si cambias un `.js`, regenera el flujo y corre las pruebas desde la raíz del re
 python3 gateway/node-red/indices-4.7/gen47.py
 for t in gateway/node-red/indices-4.7/*.test.js; do node "$t" || echo "FALLÓ $t"; done
 ```
+
+## Actualizar el flujo en un Node-RED que ya lo tiene
+
+Importar `../flujo-mvp-4.7.json` y, cuando Node-RED diga que los nodos ya existen, elegir **Replace** (reemplazar); después Deploy. **No borrar la pestaña** antes de importar: al desplegar sin ella, Node-RED borra su contexto y se pierden los índices acumulados.
 
 ## 1. Bot de Telegram (una sola vez)
 
