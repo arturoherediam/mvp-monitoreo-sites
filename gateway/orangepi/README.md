@@ -34,6 +34,7 @@ Las carpetas `etc/` y `usr/` tienen **los archivos exactos** que se aplicaron en
 | `etc/systemd/timesyncd.conf.d/mvp-gateway.conf` | Hora solo desde la laptop: la Orange Pi solo tiene internet a través de ella, así que un respaldo de internet no sirve |
 | `etc/ssh/sshd_config.d/10-mvp-gateway.conf` | Solo llave SSH, sin root y sin contraseñas |
 | `etc/hostapd/hostapd.conf.example` | Plantilla del hotspot (sin SSID ni contraseña reales) |
+| `usr/local/sbin/revisar-gateway.sh` | Revisión rápida antes de presentar (solo lee); ver [`../scripts`](../scripts/README.md) |
 | `usr/local/sbin/hotspot-watchdog.sh` y `etc/systemd/system/hotspot-watchdog.{service,timer}` | Vigilancia del hotspot (ver fase 5) |
 | `etc/systemd/network/30-wlan0-ap.network` | IP fija 10.42.0.1 y servidor DHCP en `wlan0`, sin ruta ni DNS para los nodos (no necesitan internet) |
 
@@ -251,8 +252,8 @@ Si alguna vez la caída vuelve con la antena bien y el reinicio de hostapd no ba
 
 ## Siguiente
 
-- **4.8** Histórico en SQLite con escritura agrupada (cada 10 a 30 s, para cuidar la microSD).
-- **7.2** Migrar y probar con los dos nodos reales: ya publican en la Orange Pi; falta la prueba formal con el rack y la flama.
-- **4.9** ICS de la laptop y respaldo con el hotspot del celular.
+Hechos el 30 oct: **4.8** histórico en SQLite (ver [`../node-red/historico-4.8`](../node-red/historico-4.8/README.md)), **7.2** prueba con los dos nodos completos (rack con flama y ambiente) y **4.9** ICS y respaldo de internet (ver [`../scripts`](../scripts/README.md)).
+
+Sigue: integración con las PCB y los enclosures (7.4 y 7.5) y las pruebas de estabilidad y de fallo (7.6 y 7.7). Antes de cada prueba: `sudo revisar-gateway.sh`.
 
 Por qué hostapd y no `nmcli`: la imagen no trae NetworkManager y en foros de Armbian (2024) el hotspot con `nmcli` en esta placa fallaba con WPA2. Planes de respaldo que no hicieron falta: DietPi o un adaptador Wi-Fi USB con modo AP.
