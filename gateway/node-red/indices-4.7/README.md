@@ -43,7 +43,7 @@ chmod 600 ~/.node-red/environment; unset T C
 python3 gateway/node-red/indices-4.7/configurar_settings.py
 ```
 
-Hace solo dos cambios y guarda una copia en `settings.js.antes-4.7`:
+Funciona con el `settings.js` de Node-RED 4 y 5 (tolera espacios, tabs y fin de línea distintos). Hace solo dos cambios y guarda una copia en `settings.js.antes-4.7`:
 
 - Activa el **contexto en disco**: los índices y los avisos ya enviados sobreviven a un reinicio (Node-RED guarda cada 30 s).
 - Carga `~/.node-red/environment` al arrancar, así funciona igual como servicio o desde la terminal.
