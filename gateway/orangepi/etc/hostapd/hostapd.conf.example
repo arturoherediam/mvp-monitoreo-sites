@@ -1,0 +1,20 @@
+# Copiar a /etc/hostapd/hostapd.conf (chmod 600) y llenar ssid y wpa_passphrase
+# desde 1Password (MVP Gateway · Hotspot). Mismos valores que el hotspot de la laptop
+# (respaldo) y que WIFI_SSID / WIFI_PASSWORD de los nodos. NUNCA subas el archivo real.
+interface=wlan0
+driver=nl80211
+country_code=MX
+ieee80211d=1
+hw_mode=g
+channel=6
+ieee80211n=1
+wmm_enabled=1
+ssid=CAMBIAR
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+wpa_passphrase=CAMBIAR
+ctrl_interface=/run/hostapd
+ctrl_interface_group=0
