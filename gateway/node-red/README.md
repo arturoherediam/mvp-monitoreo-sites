@@ -9,6 +9,7 @@ Flujos de Node-RED exportados. No subir `flows_cred.json` (está en `.gitignore`
 | `flujo-mvp-4.1.json` | 4.1 | Se suscribe a `site/datos` y `site/estado/+`, valida el contrato v1 y muestra el resultado en la barra de depuración. Contiene la configuración del broker (`mvp_broker`). |
 | `flujo-mvp-4.3.json` | 4.3 | Dashboard v1 con Dashboard 2.0 (`@flowfuse/node-red-dashboard`): estado de los nodos, alertas, rack A y B, ambiente y gráficas. Usa el broker `mvp_broker` del flujo 4.1, así que **importa primero el 4.1**. |
 | `flujo-mvp-4.7.json` | 4.7 | Pestaña **Mantenimiento**: índices de mantenimiento, viento de Open-Meteo y avisos por Telegram. Usa el broker del 4.1 y el dashboard del 4.3. Código, pruebas e instalación en [`indices-4.7/`](indices-4.7/README.md). |
+| `flujo-mvp-4.8.json` | 4.8 | Pestaña **Histórico**: guarda `site/datos` en SQLite (lotes de 30 s) y muestra 24 h y 7 días. Requiere `node-red-node-sqlite`. Instalación y pruebas en [`historico-4.8/`](historico-4.8/README.md). |
 
 ## Importar el dashboard 4.3
 
@@ -25,4 +26,4 @@ El dashboard 4.3 no tiene umbrales de temperatura, humedad ni partículas: sus a
 
 Sigue [`indices-4.7/README.md`](indices-4.7/README.md): bot de Telegram, `settings.js`, importar y probar. El token de Telegram vive en `~/.node-red/environment`, nunca en el flujo ni en el repo.
 
-No subas una exportación de Node-RED hecha después de configurar el broker: puede incluir credenciales. Usa los archivos de esta carpeta, que no las tienen.
+No subas `historico.db` ni una exportación de Node-RED hecha después de configurar el broker: puede incluir credenciales. Usa los archivos de esta carpeta, que no las tienen.
