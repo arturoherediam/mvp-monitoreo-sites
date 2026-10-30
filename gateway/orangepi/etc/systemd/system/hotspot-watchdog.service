@@ -1,0 +1,7 @@
+[Unit]
+Description=Revisa que el hotspot tenga dispositivos y reinicia hostapd si no
+After=hostapd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/hotspot-watchdog.sh

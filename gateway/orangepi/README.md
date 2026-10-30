@@ -2,7 +2,7 @@
 
 Responsable: Arturo. Tareas 4.5 y 4.6 (ver `docs/plan/wbs.md`). Fases 0 a 2 hechas el 21 y 22 oct; fases 3 (hotspot, tarea 4.5) y 4 (Mosquitto, firewall y Node-RED, tarea 4.6) hechas el 29 oct. Sigue la 4.8 (histórico en SQLite) y la 7.2 (prueba con los nodos reales).
 
-La carpeta `etc/` tiene **los archivos exactos** que se aplicaron en la Orange Pi, con la misma ruta que en el sistema (`etc/netplan/...` va en `/etc/netplan/...`). No contienen secretos: `hostapd.conf.example` es una plantilla y el archivo real con la contraseña solo existe en la Orange Pi.
+Las carpetas `etc/` y `usr/` tienen **los archivos exactos** que se aplicaron en la Orange Pi, con la misma ruta que en el sistema (`etc/netplan/...` va en `/etc/netplan/...`). No contienen secretos: `hostapd.conf.example` es una plantilla y el archivo real con la contraseña solo existe en la Orange Pi.
 
 ## Estado actual
 
@@ -17,6 +17,8 @@ La carpeta `etc/` tiene **los archivos exactos** que se aplicaron en la Orange P
 | MQTT | Mosquitto en el puerto 1883, sin acceso anónimo, 4 usuarios (`admin`, `dashboard`, `nodo_rack`, `nodo_ambiente`) con ACL por tema |
 | Firewall | ufw: entrada denegada salvo SSH y Node-RED desde la laptop (`end0`), MQTT y DHCP desde los nodos (`wlan0`) |
 | Node-RED | 5.0.9 sobre Node.js 24.22.2, servicio `nodered` del usuario `arturo`, Dashboard 2.0 1.31.0, editor con usuario y contraseña, contexto en disco |
+| Vigilancia del hotspot | `hotspot-watchdog.timer` cada minuto: si hay 0 dispositivos durante 3 min (o hostapd no está activo), reinicia hostapd |
+| Bluetooth | Apagado (`aw859a-bluetooth` y `bluetooth` deshabilitados): no se usa y comparte la radio con el Wi-Fi |
 | Dashboard | http://10.42.1.2:1880/mvp-site/monitoreo y `/mvp-site/mantenimiento` (desde la laptop) |
 | Red | `systemd-networkd` con netplan (la imagen mínima no trae NetworkManager) |
 | Hora | `systemd-timesyncd` toma la hora de la laptop (chrony en 10.42.1.1) |
@@ -32,6 +34,7 @@ La carpeta `etc/` tiene **los archivos exactos** que se aplicaron en la Orange P
 | `etc/systemd/timesyncd.conf.d/mvp-gateway.conf` | Hora solo desde la laptop: la Orange Pi solo tiene internet a través de ella, así que un respaldo de internet no sirve |
 | `etc/ssh/sshd_config.d/10-mvp-gateway.conf` | Solo llave SSH, sin root y sin contraseñas |
 | `etc/hostapd/hostapd.conf.example` | Plantilla del hotspot (sin SSID ni contraseña reales) |
+| `usr/local/sbin/hotspot-watchdog.sh` y `etc/systemd/system/hotspot-watchdog.{service,timer}` | Vigilancia del hotspot (ver fase 5) |
 | `etc/systemd/network/30-wlan0-ap.network` | IP fija 10.42.0.1 y servidor DHCP en `wlan0`, sin ruta ni DNS para los nodos (no necesitan internet) |
 
 ## Cómo se instaló (para repetirlo desde cero)
@@ -181,6 +184,33 @@ free -h | head -2                                                     # ~200 MB 
 
 Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depuración, dashboard con datos, viento de Open-Meteo y prueba de Telegram entregada.
 
+### Fase 5. Estabilidad del hotspot (29 oct)
+
+**Falla observada:** a las 19:43, unos 17 min después de reiniciar, los dos nodos salieron del Wi-Fi con 30 s de diferencia y no volvieron. El teléfono ya no veía la red, pero hostapd seguía en `state=ENABLED` y `type AP`, y el kernel no registró ningún error. `sudo systemctl restart hostapd` lo recuperó. Es decir: el chip UWE5622 deja de transmitir **en silencio**.
+
+**Respuesta:**
+
+1. **Vigilancia automática.** Un *timer* de systemd revisa cada minuto cuántos dispositivos hay; con 0 durante 3 min seguidos (o hostapd inactivo) reinicia hostapd y lo registra. Efecto secundario aceptado: si los nodos están apagados a propósito, reinicia hostapd cada 3 min (sin consecuencias).
+   ```bash
+   # Desde la laptop, desde gateway/orangepi/:
+   scp usr/local/sbin/hotspot-watchdog.sh etc/systemd/system/hotspot-watchdog.service etc/systemd/system/hotspot-watchdog.timer arturo@10.42.1.2:~
+   # En la Orange Pi:
+   sudo install -m 755 ~/hotspot-watchdog.sh /usr/local/sbin/
+   sudo install -m 644 ~/hotspot-watchdog.service ~/hotspot-watchdog.timer /etc/systemd/system/
+   rm ~/hotspot-watchdog.sh ~/hotspot-watchdog.service ~/hotspot-watchdog.timer
+   sudo systemctl daemon-reload && sudo systemctl enable --now hotspot-watchdog.timer
+   ```
+   Prueba (29 oct): con los dos nodos apagados, a los 3 min registró `reinicio hostapd`; al encenderlos se conectaron solos (`num_sta[0]=2`).
+2. **Bluetooth apagado.** `aw859a-bluetooth.service` (corre `hciattach_opi` y enciende la parte Bluetooth del chip) y `bluetooth.service` (BlueZ). **No** tocar `aw859a-wifi.service`.
+   ```bash
+   sudo systemctl disable --now aw859a-bluetooth.service bluetooth.service
+   ```
+   Deshacer: `sudo systemctl enable --now aw859a-bluetooth.service bluetooth.service`. Después de reiniciar: sin `hciattach`, sin `MARLIN_BLUETOOTH` en `dmesg` y el hotspot con los nodos conectados.
+
+Comprobar: `systemctl list-timers hotspot-watchdog.timer` y `sudo journalctl -t hotspot-watchdog` (cada reinicio que hizo).
+
+**Pendiente:** prueba larga (varias horas) para ver si la falla vuelve sin Bluetooth y cuántas veces actuó la vigilancia. Si la falla sigue y el reinicio de hostapd deja de bastar, el siguiente paso sería recargar el driver o un adaptador Wi-Fi USB con modo AP.
+
 ## Uso diario
 
 - Entrar: `ssh arturo@10.42.1.2`. Si la laptop dice `agent refused operation`: `ssh-add ~/.ssh/id_ed25519`.
@@ -188,7 +218,7 @@ Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depur
 - Apagar **siempre** con `sudo poweroff`, esperar a que se apague el LED verde y luego desconectar (cuida la microSD).
 - Contraseñas en la bóveda Gateway de 1Password: `MVP Gateway · SSH · root` y `MVP Gateway · SSH · arturo`; Mosquitto (`MVP Gateway · Mosquitto · <usuario>`), editor de Node-RED (`MVP Gateway · Node-RED · admin`) y su *credential secret*.
 - Editor de Node-RED: http://10.42.1.2:1880. Dashboard: http://10.42.1.2:1880/mvp-site/monitoreo y `/mvp-site/mantenimiento`.
-- Registro de Node-RED: `sudo journalctl -u nodered -n 50`. Reiniciarlo: `sudo systemctl restart nodered`.
+- Registro de Node-RED: `sudo journalctl -u nodered -n 50`. Reinicios automáticos del hotspot: `sudo journalctl -t hotspot-watchdog`. Reiniciarlo: `sudo systemctl restart nodered`.
 - Ver mensajes MQTT: `mosquitto_sub -h localhost -u dashboard -P "$PW" -t 'site/#' -v` (leer antes la contraseña con `read -rsp`).
 
 ## Lecciones
@@ -200,6 +230,9 @@ Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depur
 - **`iw: command not found`:** está en `/usr/sbin`, fuera del PATH de un usuario normal. Usar `sudo iw`.
 - **Instalador de Node-RED:** el script cambió de nombre a `install-update-nodered-deb`; el anterior (`update-nodejs-and-nodered-deb`) ya da *Not Found*.
 - **Node-RED 5:** `admin init` escribe `settings.js` con otro formato y con `uiHost: "127.0.0.1"`. `configurar_settings.py` ya tolera el formato nuevo; `uiHost` se cambia con `sed`.
+- **El hotspot puede caer sin avisar:** `state=ENABLED` no garantiza que transmita. Lo que sí lo confirma es que un teléfono vea la red o que haya dispositivos conectados (`num_sta`).
+- **`sudo` y pegar varias líneas:** si `sudo` pide contraseña a mitad de un bloque, toma las líneas pegadas como contraseña. Correr `sudo -v` antes.
+- **Mosquitto en Debian** escribe conexiones y desconexiones en `/var/log/mosquitto/mosquitto.log`, no en `journalctl`.
 - **Pegar comandos:** si aparece `^[[200~` al inicio, la terminal pegó caracteres de control; volver a pegar la línea sola.
 
 ## Siguiente
