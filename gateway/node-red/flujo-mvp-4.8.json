@@ -1,0 +1,623 @@
+[
+  {
+    "id": "d48_tab",
+    "type": "tab",
+    "label": "MVP histórico 4.8",
+    "disabled": false,
+    "info": "Histórico en SQLite (/home/arturo/.node-red/historico.db): escribe site/datos en lotes de 30 s (WAL, synchronous=NORMAL), resume por hora, borra lecturas de más de 30 días y muestra la página Histórico (24 h y 7 días). Requiere node-red-node-sqlite y los flujos 4.1 (broker mvp_broker) y 4.3 (dashboard). Esquema: gateway/db/esquema.sql"
+  },
+  {
+    "id": "d48_db",
+    "type": "sqlitedb",
+    "db": "/home/arturo/.node-red/historico.db",
+    "mode": "RWC"
+  },
+  {
+    "id": "d48_ui_page",
+    "type": "ui-page",
+    "name": "Histórico",
+    "ui": "d43_ui_base",
+    "path": "/historico",
+    "icon": "chart-line",
+    "layout": "grid",
+    "theme": "d43_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 3,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "d48_g_r",
+    "type": "ui-group",
+    "name": "Rango",
+    "page": "d48_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 1,
+    "showTitle": false,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d48_g_t",
+    "type": "ui-group",
+    "name": "Temperatura (°C)",
+    "page": "d48_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d48_g_h",
+    "type": "ui-group",
+    "name": "Humedad relativa (%)",
+    "page": "d48_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 3,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d48_g_p",
+    "type": "ui-group",
+    "name": "Partículas PM2.5 y PM10 (µg/m³)",
+    "page": "d48_ui_page",
+    "width": "12",
+    "height": "1",
+    "order": 4,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "d48_mqtt",
+    "type": "mqtt in",
+    "z": "d48_tab",
+    "name": "site/datos",
+    "topic": "site/datos",
+    "qos": "0",
+    "datatype": "json",
+    "broker": "mvp_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 110,
+    "y": 60,
+    "wires": [
+      [
+        "d48_filas"
+      ]
+    ]
+  },
+  {
+    "id": "d48_filas",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "A filas",
+    "func": "// [4.8] Convierte un mensaje de site/datos (contrato v1) en filas para la tabla lecturas.\n// Rack: una fila por posición. Ambiente: una fila con pos ''. Lo que no cumple el contrato se descarta.\nconst p = msg.payload;\nif (!p || typeof p !== 'object' || p.schema !== 1) return null;\nconst id = String(p.node_id || '');\nif (!/^[a-z0-9-]{1,32}$/.test(id)) return null;\nconst num = v => (typeof v === 'number' && isFinite(v)) ? v : null;\n// Códigos de error: en el ambiente van en p.err; en el rack, en cada posición (q.err) y, si los hay, en p.err (mux).\nconst codigos = (...listas) => [].concat(...listas.map(l => Array.isArray(l) ? l : []))\n    .filter(e => typeof e === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(e)).join(',') || null;\nconst ts = Date.now();\nconst filas = [];\nif (p.type === 'rack' && Array.isArray(p.positions)) {\n    for (const q of p.positions) {\n        if (!q || typeof q.id !== 'string' || !/^[A-Z]$/.test(q.id)) continue;\n        filas.push({ ts, node_id: id, pos: q.id, temp: num(q.temp), hum: num(q.hum), dew_point: num(q.dew_point),\n                     flame: q.flame === true ? 1 : (q.flame === false ? 0 : null),\n                     pm1_0: null, pm2_5: null, pm10: null, err: codigos(p.err, q.err) });\n    }\n} else if (p.type === 'ambiente') {\n    filas.push({ ts, node_id: id, pos: '', temp: num(p.temp), hum: num(p.hum), dew_point: num(p.dew_point), flame: null,\n                 pm1_0: num(p.pm1_0), pm2_5: num(p.pm2_5), pm10: num(p.pm10), err: codigos(p.err) });\n}\nif (!filas.length) return null;\nmsg.payload = filas;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 290,
+    "y": 60,
+    "wires": [
+      [
+        "d48_join"
+      ]
+    ]
+  },
+  {
+    "id": "d48_join",
+    "type": "join",
+    "z": "d48_tab",
+    "name": "Lote de 30 s",
+    "mode": "custom",
+    "build": "array",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": false,
+    "timeout": "30",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 470,
+    "y": 60,
+    "wires": [
+      [
+        "d48_lote"
+      ]
+    ]
+  },
+  {
+    "id": "d48_lote",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "SQL del lote",
+    "func": "// [4.8] Recibe el lote de 30 s (arreglo de arreglos de filas) y arma UNA transacción.\n// Una sola escritura cada 30 s cuida la microSD (acuerdo de red-y-gateway.md).\nconst filas = [].concat(...(Array.isArray(msg.payload) ? msg.payload : []));\nif (!filas.length) return null;\nconst COLS = ['ts', 'node_id', 'pos', 'temp', 'hum', 'dew_point', 'flame', 'pm1_0', 'pm2_5', 'pm10', 'err'];\nconst v = x => (x === null || x === undefined) ? 'NULL'\n             : (typeof x === 'number' ? (isFinite(x) ? String(x) : 'NULL') : \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\nconst partes = [];\nfor (let i = 0; i < filas.length; i += 200) {\n    const vals = filas.slice(i, i + 200).map(f => '(' + COLS.map(c => v(f[c])).join(',') + ')');\n    partes.push('INSERT INTO lecturas(' + COLS.join(',') + ') VALUES ' + vals.join(',') + ';');\n}\nmsg.topic = 'PRAGMA synchronous=NORMAL; BEGIN; ' + partes.join(' ') + ' COMMIT;';\nmsg.filas = filas.length;\nnode.status({ fill: 'green', shape: 'dot', text: filas.length + ' filas · ' + new Date().toLocaleTimeString('es-MX') });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 650,
+    "y": 60,
+    "wires": [
+      [
+        "d48_w"
+      ]
+    ]
+  },
+  {
+    "id": "d48_i_esq",
+    "type": "inject",
+    "z": "d48_tab",
+    "name": "Al arrancar",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "2",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 120,
+    "y": 120,
+    "wires": [
+      [
+        "d48_esq"
+      ]
+    ]
+  },
+  {
+    "id": "d48_esq",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "Crear esquema",
+    "func": "msg.topic = \"PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS lecturas ( ts INTEGER NOT NULL, node_id TEXT NOT NULL, pos TEXT NOT NULL DEFAULT '', temp REAL, hum REAL, dew_point REAL, flame INTEGER, pm1_0 REAL, pm2_5 REAL, pm10 REAL, err TEXT ); CREATE INDEX IF NOT EXISTS lecturas_ts ON lecturas(ts); CREATE TABLE IF NOT EXISTS resumen_hora ( hora INTEGER NOT NULL, node_id TEXT NOT NULL, pos TEXT NOT NULL DEFAULT '', n INTEGER, temp_avg REAL, temp_min REAL, temp_max REAL, hum_avg REAL, hum_min REAL, hum_max REAL, dew_avg REAL, pm2_5_avg REAL, pm2_5_max REAL, pm10_avg REAL, pm10_max REAL, flama INTEGER, PRIMARY KEY (hora, node_id, pos) );\";\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 300,
+    "y": 120,
+    "wires": [
+      [
+        "d48_w"
+      ]
+    ]
+  },
+  {
+    "id": "d48_i_res",
+    "type": "inject",
+    "z": "d48_tab",
+    "name": "Cada hora",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "3600",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "90",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 120,
+    "y": 180,
+    "wires": [
+      [
+        "d48_res"
+      ]
+    ]
+  },
+  {
+    "id": "d48_res",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "Resumen por hora y limpieza",
+    "func": "// [4.8] Cada hora: recalcula el resumen de las últimas 3 horas y borra lecturas de más de DIAS días.\nconst DIAS = 30;\nconst H = 3600000;\nconst ahora = Date.now();\nconst desde = Math.floor(ahora / H) * H - 3 * H;\nmsg.topic =\n    'INSERT OR REPLACE INTO resumen_hora ' +\n    '(hora,node_id,pos,n,temp_avg,temp_min,temp_max,hum_avg,hum_min,hum_max,dew_avg,pm2_5_avg,pm2_5_max,pm10_avg,pm10_max,flama) ' +\n    'SELECT (ts/' + H + ')*' + H + ', node_id, pos, COUNT(*), AVG(temp), MIN(temp), MAX(temp), AVG(hum), MIN(hum), MAX(hum), ' +\n    'AVG(dew_point), AVG(pm2_5), MAX(pm2_5), AVG(pm10), MAX(pm10), MAX(flame) ' +\n    'FROM lecturas WHERE ts >= ' + desde + ' GROUP BY 1, 2, 3; ' +\n    'DELETE FROM lecturas WHERE ts < ' + (ahora - DIAS * 24 * H) + ';';\nnode.status({ fill: 'blue', shape: 'dot', text: 'resumen ' + new Date().toLocaleTimeString('es-MX') });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 180,
+    "wires": [
+      [
+        "d48_w"
+      ]
+    ]
+  },
+  {
+    "id": "d48_w",
+    "type": "sqlite",
+    "z": "d48_tab",
+    "mydb": "d48_db",
+    "sqlquery": "batch",
+    "sql": "",
+    "name": "Escribir (lote)",
+    "x": 860,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d48_i_ref",
+    "type": "inject",
+    "z": "d48_tab",
+    "name": "Refrescar cada minuto",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "60",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "20",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 300,
+    "wires": [
+      [
+        "d48_q"
+      ]
+    ]
+  },
+  {
+    "id": "d48_q",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "Consulta",
+    "func": "// [4.8] Arma la consulta de la página Histórico. Entrada: '24h' o '7d' desde la página, o el refresco periódico.\n// 24 h: promedio por minuto desde lecturas. 7 días: promedio por hora desde resumen_hora.\nlet rango = flow.get('rango_historico') || '24h';\nif (msg.payload === '24h' || msg.payload === '7d') { rango = msg.payload; flow.set('rango_historico', rango); }\nconst H = 3600000, ahora = Date.now();\nif (rango === '7d') {\n    msg.topic = 'SELECT hora AS x, node_id, pos, temp_avg AS t, hum_avg AS h, pm2_5_avg AS p25, pm10_avg AS p10 ' +\n                'FROM resumen_hora WHERE hora >= ' + (ahora - 7 * 24 * H) + ' ORDER BY 1';\n} else {\n    msg.topic = 'SELECT (ts/60000)*60000 AS x, node_id, pos, AVG(temp) AS t, AVG(hum) AS h, AVG(pm2_5) AS p25, AVG(pm10) AS p10 ' +\n                'FROM lecturas WHERE ts >= ' + (ahora - 24 * H) + ' GROUP BY 1, 2, 3 ORDER BY 1';\n}\nmsg.rango = rango;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 320,
+    "wires": [
+      [
+        "d48_r"
+      ]
+    ]
+  },
+  {
+    "id": "d48_r",
+    "type": "sqlite",
+    "z": "d48_tab",
+    "mydb": "d48_db",
+    "sqlquery": "msg.topic",
+    "sql": "",
+    "name": "Leer",
+    "x": 690,
+    "y": 320,
+    "wires": [
+      [
+        "d48_ser"
+      ]
+    ]
+  },
+  {
+    "id": "d48_ser",
+    "type": "function",
+    "z": "d48_tab",
+    "name": "Series",
+    "func": "// [4.8] Convierte las filas de la consulta en series para las 3 gráficas y un resumen para la página.\n// Por gráfica: primero un mensaje vacío (borra lo anterior) y luego un mensaje por serie con [{x, y}].\nconst filas = Array.isArray(msg.payload) ? msg.payload : [];\nconst nombre = f => f.pos ? f.node_id + ' ' + f.pos : f.node_id;\nconst r1 = v => (typeof v === 'number' && isFinite(v)) ? Math.round(v * 10) / 10 : null;\nfunction series(campo, etiqueta) {\n    const s = {};\n    for (const f of filas) {\n        const y = r1(f[campo]);\n        if (y === null) continue;\n        const k = etiqueta ? nombre(f) + ' ' + etiqueta : nombre(f);\n        (s[k] = s[k] || []).push({ x: f.x, y: y });\n    }\n    return [{ payload: [] }].concat(Object.keys(s).sort().map(k => ({ topic: k, payload: s[k] })));\n}\nconst temp = series('t'), hum = series('h');\nconst pm = series('p25', 'PM2.5').concat(series('p10', 'PM10').slice(1));\nconst nodos = [...new Set(filas.map(nombre))].sort();\nconst info = { payload: { rango: msg.rango, puntos: filas.length, nodos: nodos,\n                          hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) } };\nnode.status({ fill: 'green', shape: 'dot', text: msg.rango + ' · ' + filas.length + ' filas' });\nreturn [temp, hum, pm, info];\n",
+    "outputs": 4,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 860,
+    "y": 320,
+    "wires": [
+      [
+        "d48_ch_t"
+      ],
+      [
+        "d48_ch_h"
+      ],
+      [
+        "d48_ch_p"
+      ],
+      [
+        "d48_ui"
+      ]
+    ]
+  },
+  {
+    "id": "d48_ch_t",
+    "type": "ui-chart",
+    "z": "d48_tab",
+    "group": "d48_g_t",
+    "name": "Temperatura",
+    "label": "",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "x",
+    "xAxisPropertyType": "property",
+    "xmin": "",
+    "xmax": "",
+    "bins": 10,
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "yAxisLabel": "",
+    "yAxisProperty": "y",
+    "yAxisPropertyType": "property",
+    "ymin": "",
+    "ymax": "",
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 8,
+    "removeOlderUnit": "86400",
+    "removeOlderPoints": "",
+    "colors": [
+      "#1f77b4",
+      "#d62728",
+      "#2ca02c",
+      "#ff7f0e",
+      "#9467bd",
+      "#8c564b"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 12,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 1180,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "d48_ch_h",
+    "type": "ui-chart",
+    "z": "d48_tab",
+    "group": "d48_g_h",
+    "name": "Humedad",
+    "label": "",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "x",
+    "xAxisPropertyType": "property",
+    "xmin": "",
+    "xmax": "",
+    "bins": 10,
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "yAxisLabel": "",
+    "yAxisProperty": "y",
+    "yAxisPropertyType": "property",
+    "ymin": "0",
+    "ymax": "",
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 8,
+    "removeOlderUnit": "86400",
+    "removeOlderPoints": "",
+    "colors": [
+      "#1f77b4",
+      "#d62728",
+      "#2ca02c",
+      "#ff7f0e",
+      "#9467bd",
+      "#8c564b"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 12,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 1180,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "d48_ch_p",
+    "type": "ui-chart",
+    "z": "d48_tab",
+    "group": "d48_g_p",
+    "name": "Partículas",
+    "label": "",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "x",
+    "xAxisPropertyType": "property",
+    "xmin": "",
+    "xmax": "",
+    "bins": 10,
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "yAxisLabel": "",
+    "yAxisProperty": "y",
+    "yAxisPropertyType": "property",
+    "ymin": "0",
+    "ymax": "",
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 8,
+    "removeOlderUnit": "86400",
+    "removeOlderPoints": "",
+    "colors": [
+      "#1f77b4",
+      "#d62728",
+      "#2ca02c",
+      "#ff7f0e",
+      "#9467bd",
+      "#8c564b"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 12,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 1180,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "d48_ui",
+    "type": "ui-template",
+    "z": "d48_tab",
+    "group": "d48_g_r",
+    "page": "",
+    "ui": "",
+    "name": "Rango del histórico",
+    "order": 1,
+    "width": 12,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <div style=\"display:flex; flex-wrap:wrap; align-items:center; gap:12px; width:100%\">\n    <div>\n      <button v-for=\"o in opciones\" :key=\"o.v\" @click=\"elegir(o.v)\"\n              :style=\"{padding:'6px 14px', marginRight:'6px', borderRadius:'6px', cursor:'pointer',\n                       border:'1px solid #0b5cab', fontWeight:'bold',\n                       background: rango === o.v ? '#0b5cab' : '#ffffff', color: rango === o.v ? '#ffffff' : '#0b5cab'}\">\n        {{ o.t }}\n      </button>\n    </div>\n    <div style=\"color:#555; font-size:0.9em\">\n      <span v-if=\"msg && msg.payload && msg.payload.puntos\">\n        {{ msg.payload.rango === '7d' ? 'Promedio por hora' : 'Promedio por minuto' }} ·\n        {{ msg.payload.nodos.join(', ') }} · actualizado {{ msg.payload.hora }}\n      </span>\n      <span v-else-if=\"msg && msg.payload\">Sin datos todavía en este rango (el histórico se escribe cada 30 s; el resumen por hora, cada hora).</span>\n      <span v-else>Cargando…</span>\n    </div>\n  </div>\n</template>\n\n<script>\nexport default {\n  data () { return { opciones: [{ v: '24h', t: 'Últimas 24 h' }, { v: '7d', t: 'Últimos 7 días' }] } },\n  computed: { rango () { return (this.msg && this.msg.payload && this.msg.payload.rango) || '24h' } },\n  methods: { elegir (v) { this.send({ payload: v }) } }\n}\n</script>\n",
+    "storeOutMessages": true,
+    "passthru": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 1180,
+    "y": 440,
+    "wires": [
+      [
+        "d48_q"
+      ]
+    ]
+  },
+  {
+    "id": "d48_catch",
+    "type": "catch",
+    "z": "d48_tab",
+    "name": "Errores SQLite",
+    "scope": [
+      "d48_w",
+      "d48_r"
+    ],
+    "uncaught": false,
+    "x": 120,
+    "y": 500,
+    "wires": [
+      [
+        "d48_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "d48_dbg",
+    "type": "debug",
+    "z": "d48_tab",
+    "name": "Error histórico",
+    "active": true,
+    "tosidebar": true,
+    "console": true,
+    "tostatus": true,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "error.message",
+    "statusType": "msg",
+    "x": 330,
+    "y": 500,
+    "wires": []
+  }
+]
