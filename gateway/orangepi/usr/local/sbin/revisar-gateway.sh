@@ -18,8 +18,11 @@ if echo "$st" | grep -q '^state=ENABLED'; then ok "hostapd ENABLED, $(echo "$st"
 else mal "hostapd no está ENABLED"; fi
 n=$(echo "$st" | sed -n 's/^num_sta\[0\]=//p'); [ -n "$n" ] || n=0
 if [ "$n" -ge 2 ]; then ok "$n dispositivos conectados"; else mal "$n dispositivos conectados (se esperan los 2 nodos)"; fi
-r=$(journalctl -t hotspot-watchdog --since today -q --no-pager 2>/dev/null | wc -l)
-if [ "$r" -eq 0 ]; then ok "sin reinicios automáticos del hotspot hoy"; else mal "$r reinicios automáticos del hotspot hoy (revisar la antena)"; fi
+# Cuenta solo la última hora: con los nodos apagados a propósito la vigilancia reinicia hostapd y eso no es una falla.
+r=$(journalctl -t hotspot-watchdog --since "-1h" -q --no-pager 2>/dev/null | wc -l)
+rd=$(journalctl -t hotspot-watchdog --since today -q --no-pager 2>/dev/null | wc -l)
+if [ "$r" -eq 0 ]; then ok "sin reinicios automáticos del hotspot en la última hora ($rd hoy)"
+else mal "$r reinicios automáticos del hotspot en la última hora ($rd hoy): ¿nodos apagados? si no, revisar la antena"; fi
 
 echo "== MQTT"
 c=$(ss -Htn state established '( sport = :1883 )' | wc -l)

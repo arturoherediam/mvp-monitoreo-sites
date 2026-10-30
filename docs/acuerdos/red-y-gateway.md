@@ -51,7 +51,7 @@ En la laptop de Arturo: `ics-pi` en el adaptador USB-RJ45 `enx00e04c69083f`, `10
 | c. Reiniciar la laptop | `ics-pi` vuelve solo; la Orange Pi recupera internet y hora. Mientras tanto los nodos, el dashboard y el histórico siguen sin huecos |
 | d. Sin internet | Nodos, dashboard, histórico y hotspot siguen; solo fallan viento y Telegram, de forma controlada, y se recuperan al volver internet |
 
-**Límite conocido:** los avisos de Telegram no se reintentan. Un aviso enviado justo cuando cambia la red o se cae internet puede no llegar a Telegram; el dashboard y el histórico sí lo registran.
+**Telegram sin internet:** desde el 30 oct los avisos esperan en una cola y se reintentan (15 s, 1 min y cada 5 min, hasta 2 h); los que salen tarde llevan **[retrasado, HH:MM]**. Ver [indices-mantenimiento.md](indices-mantenimiento.md#alertas-por-telegram).
 
 Usar un **cable Ethernet normal** entre la laptop y la Orange Pi, con la VPN apagada y el hotspot de la laptop apagado (mismo nombre e IP que el de la Orange Pi: nunca los dos a la vez).
 
