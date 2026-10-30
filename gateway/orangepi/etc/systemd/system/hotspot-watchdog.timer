@@ -1,0 +1,10 @@
+[Unit]
+Description=Revisión del hotspot cada minuto
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=1min
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

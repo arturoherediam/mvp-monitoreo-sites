@@ -10,15 +10,18 @@ Guarda una copia en settings.js.antes-4.7 y revisa la sintaxis con node --check;
 si algo falla, deja el archivo como estaba.
 Uso: python3 configurar_settings.py [ruta a settings.js]   (por defecto ~/.node-red/settings.js)
 """
-import os, shutil, subprocess, sys
+import os, re, shutil, subprocess, sys
 
 ruta = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser('~/.node-red/settings.js')
 MARCA = '[mvp 4.7]'
-VIEJO = '''    //contextStorage: {
-    //    default: {
-    //        module:"localfilesystem"
-    //    },
-    //},'''
+# Bloque comentado de contextStorage; tolera espacios, tabs y fin de línea distintos
+# (Node-RED 4 y 5 lo escriben con formato diferente).
+VIEJO = re.compile(r'^[ \t]*//[ \t]*contextStorage:[ \t]*\{[ \t]*\r?\n'
+                   r'[ \t]*//[ \t]*default:[ \t]*\{[ \t]*\r?\n'
+                   r'[ \t]*//[ \t]*module:[ \t]*"localfilesystem"[ \t]*,?[ \t]*\r?\n'
+                   r'[ \t]*//[ \t]*\},?[ \t]*\r?\n'
+                   r'[ \t]*//[ \t]*\},?[ \t]*$', re.M)
+EXPORTS = re.compile(r'^module\.exports\s*=\s*\{', re.M)
 NUEVO = '''    // [mvp 4.7] contexto en disco: los índices de mantenimiento sobreviven a reinicios
     contextStorage: {
         default: {
@@ -40,14 +43,15 @@ s = open(ruta, encoding='utf-8').read()
 if MARCA in s:
     print('settings.js ya tenía los cambios de la 4.7: no se tocó.')
     sys.exit(0)
-if s.count(VIEJO) != 1 or s.count('module.exports = {') != 1:
+if len(VIEJO.findall(s)) != 1 or len(EXPORTS.findall(s)) != 1:
     print('No encontré el bloque contextStorage comentado o module.exports tal como se esperaba.')
     print('No se cambió nada. Haz el cambio a mano (ver README de indices-4.7).')
     sys.exit(1)
 
 copia = ruta + '.antes-4.7'
 shutil.copy2(ruta, copia)
-nuevo = s.replace(VIEJO, NUEVO).replace('module.exports = {', CARGADOR + 'module.exports = {', 1)
+nuevo = VIEJO.sub(lambda m: NUEVO, s, count=1)
+nuevo = EXPORTS.sub(lambda m: CARGADOR + m.group(0), nuevo, count=1)
 open(ruta, 'w', encoding='utf-8').write(nuevo)
 r = subprocess.run(['node', '--check', ruta], capture_output=True, text=True)
 if r.returncode != 0:
