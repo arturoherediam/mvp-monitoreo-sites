@@ -115,7 +115,7 @@ networkctl status wlan0 --no-pager | grep -A5 -i lease                # IP entre
 apt-mark showhold                                                     # los 4 paquetes
 ```
 
-`iw dev wlan0 info` no muestra el canal con este driver; `hostapd_cli` sí.
+Con este driver, `iw dev wlan0 info` no muestra el canal e `iw dev wlan0 station dump` no lista los dispositivos conectados (siempre 0); `hostapd_cli` sí da ambos datos.
 
 Deshacer: `sudo systemctl disable --now hostapd`, borrar `/etc/hostapd/hostapd.conf` y `/etc/systemd/network/30-wlan0-ap.network`, y `sudo systemctl restart systemd-networkd`.
 
@@ -190,7 +190,7 @@ Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depur
 
 **Respuesta:**
 
-1. **Vigilancia automática.** Un *timer* de systemd revisa cada minuto cuántos dispositivos hay; con 0 durante 3 min seguidos (o hostapd inactivo) reinicia hostapd y lo registra. Efecto secundario aceptado: si los nodos están apagados a propósito, reinicia hostapd cada 3 min (sin consecuencias).
+1. **Vigilancia automática.** Un *timer* de systemd revisa cada minuto cuántos dispositivos hay (con `hostapd_cli`, `num_sta[0]`); con 0 durante 3 min seguidos (o hostapd inactivo) reinicia hostapd y lo registra. Efecto secundario aceptado: si los nodos están apagados a propósito, reinicia hostapd cada 3 min (sin consecuencias).
    ```bash
    # Desde la laptop, desde gateway/orangepi/:
    scp usr/local/sbin/hotspot-watchdog.sh etc/systemd/system/hotspot-watchdog.service etc/systemd/system/hotspot-watchdog.timer arturo@10.42.1.2:~
@@ -201,6 +201,7 @@ Además: mensajes del nodo ambiente validados (OK) cada 5 s en la barra de depur
    sudo systemctl daemon-reload && sudo systemctl enable --now hotspot-watchdog.timer
    ```
    Prueba (29 oct): con los dos nodos apagados, a los 3 min registró `reinicio hostapd`; al encenderlos se conectaron solos (`num_sta[0]=2`).
+   La primera versión contaba con `iw ... station dump`, que con este driver siempre da 0: reiniciaba hostapd cada 3 min aunque los nodos estuvieran conectados (se vio en el registro de hostapd: `associated` sin `disassociated` antes de cada reinicio). Se corrigió para contar con `hostapd_cli`.
 2. **Bluetooth apagado.** `aw859a-bluetooth.service` (corre `hciattach_opi` y enciende la parte Bluetooth del chip) y `bluetooth.service` (BlueZ). **No** tocar `aw859a-wifi.service`.
    ```bash
    sudo systemctl disable --now aw859a-bluetooth.service bluetooth.service
@@ -230,6 +231,7 @@ Comprobar: `systemctl list-timers hotspot-watchdog.timer` y `sudo journalctl -t 
 - **`iw: command not found`:** está en `/usr/sbin`, fuera del PATH de un usuario normal. Usar `sudo iw`.
 - **Instalador de Node-RED:** el script cambió de nombre a `install-update-nodered-deb`; el anterior (`update-nodejs-and-nodered-deb`) ya da *Not Found*.
 - **Node-RED 5:** `admin init` escribe `settings.js` con otro formato y con `uiHost: "127.0.0.1"`. `configurar_settings.py` ya tolera el formato nuevo; `uiHost` se cambia con `sed`.
+- **Revisar la herramienta antes de confiar en ella:** `iw station dump` daba 0 con nodos conectados. Antes de automatizar una decisión, comparar la medida con otra fuente (aquí, `hostapd_cli` y el registro de hostapd).
 - **El hotspot puede caer sin avisar:** `state=ENABLED` no garantiza que transmita. Lo que sí lo confirma es que un teléfono vea la red o que haya dispositivos conectados (`num_sta`).
 - **`sudo` y pegar varias líneas:** si `sudo` pide contraseña a mitad de un bloque, toma las líneas pegadas como contraseña. Correr `sudo -v` antes.
 - **Mosquitto en Debian** escribe conexiones y desconexiones en `/var/log/mosquitto/mosquitto.log`, no en `journalctl`.
