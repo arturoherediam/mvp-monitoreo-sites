@@ -7,3 +7,6 @@
 *.zip     binary
 *.pdf     binary
 *.png     binary
+
+# Estadística de lenguajes de GitHub: las pruebas no cuentan (siguen en el repo y se corren igual)
+*.test.js linguist-detectable=false
