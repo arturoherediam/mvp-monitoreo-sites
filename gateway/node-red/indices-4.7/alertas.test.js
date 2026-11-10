@@ -61,10 +61,14 @@ ok(E.tg.filter(x => /Envejecimiento/.test(x)).length === 2, 'nuevo ciclo: vuelve
 E = entorno({ real: true });
 E.serie(3600, () => E.rack(30, 80));
 ok(E.tarjeta('envejecimiento').estado === 'verde' && /se evalúa desde 24 h/.test(E.tarjeta('envejecimiento').valor), 'real: con 2 h de datos todavía no evalúa envejecimiento');
-ok(E.tarjeta('corrosion').carga < 0.05 && E.tarjeta('corrosion').estado === 'verde', 'real: 2 h con HR 80 % es menos del 5 % del umbral de 72 h');
+ok(Math.abs(E.tarjeta('corrosion').carga - 0.2) < 0.02 && E.tarjeta('corrosion').estado === 'verde', 'real: 2 h con HR 80 % = 20 % del umbral de 10 h (ISO 9223 τ1), sigue en verde');
+E.serie(9030, () => E.rack(30, 80));
+ok(E.tarjeta('corrosion').estado === 'amarillo', 'real: 7 h con HR > 75 % pasa a amarillo (70 % de 10 h)');
+E.serie(5400, () => E.rack(30, 80));
+ok(E.tarjeta('corrosion').estado === 'rojo', 'real: 10 h con HR > 75 % llega a rojo');
 E = entorno({ real: true });
 E.serie(720, () => E.amb({ pm10: 35 }), 5000);
-ok(Math.abs(E.tarjeta('polvo').carga - 35 / 75000) < 0.0005, 'real: polvo usa 75 000 µg·h/m³ (1 h a 35 = 0.05 %)');
+ok(Math.abs(E.tarjeta('polvo').carga - 35 / 32400) < 0.0005, 'real: polvo usa 32 400 µg·h/m³ (90 días a 15 µg/m³, OMS 2021; 1 h a 35 = 0.11 %)');
 
 // 5. Eventos de inicio y fin, y condiciones activas
 E = entorno();
@@ -94,6 +98,12 @@ ok(E.ultimaPagina.eventos.some(e => /recuperado/.test(e.texto)), 'evento de recu
 E = entorno({ real: true });
 for (let i = 0; i < 200; i++) { E.dato(i < 6 ? ej('ambiente-con-falla') : E.amb()); E.clock += 5000; }
 ok(E.ultimaPagina.pms_falla === false && E.tarjeta('pms').estado === 'verde', 'real: 6 tramas perdidas hace más de 10 min ya no cuentan');
+E = entorno({ real: true });
+for (let i = 0; i < 120; i++) { E.dato(i % 5 === 0 ? ej('ambiente-con-falla') : E.amb()); E.clock += 5000; }
+ok(E.ultimaPagina.pms_falla === false, 'real: 20 % de tramas perdidas no es falla (umbral 25 %, completitud mínima 75 % de la EPA)');
+E = entorno({ real: true });
+for (let i = 0; i < 120; i++) { E.dato(i % 3 === 0 ? ej('ambiente-con-falla') : E.amb()); E.clock += 5000; }
+ok(E.ultimaPagina.pms_falla === true, 'real: 33 % de tramas perdidas sí es falla');
 
 // 7. Flama
 E = entorno();

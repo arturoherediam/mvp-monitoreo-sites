@@ -43,12 +43,12 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 6.2 | Banco de pruebas (ESP32+PMS5003+SHT41) | Priscila | 3 | 1.2 | 9 oct | 13 oct | 11 |
 | 6.3 | Firmware v1 del nodo ambiente (UART PMS5003, SHT41, JSON, MQTT+LWT) | Priscila | 4 | 6.1, 6.2 | 14 oct | 19 oct | 11 |
 | 6.4 | Validación de sensores y recolección de datos | Priscila | 2 | 6.3 | 23 oct | 26 oct | 10 |
-| 6.5 | Umbrales iniciales de los índices de mantenimiento (Arturo configura) | Priscila | 2 | 6.4, 4.7 | 10 nov | 11 nov | 6 |
+| 6.5 | Umbrales teóricos de los índices de mantenimiento, con fuentes | Arturo | 2 | 6.4, 4.7 | 10 nov | 11 nov | 6 |
 | **7. Integración y pruebas** | | | | | | | |
 | 7.1 | E2E de desarrollo: nodos → broker en laptop → dashboard | Arturo, Luis, Priscila | 2 | 5.3, 6.3, 4.3 | 21 oct | 22 oct | 10 |
 | 7.2 | Migrar a la Orange Pi y probar con nodos reales | Arturo, Luis, Priscila | 2 | 4.6, 7.1 | 27 oct | 28 oct | 8 |
 | 7.4 | Integración con PCB finales (flashear y probar ambos nodos) | Arturo, Diego | 3 | 2.9, 7.2, 5.5, 6.4 | 4 nov | 6 nov | 4 |
-| 7.5 | Integración en carcasas | Diego, Luis, Priscila | 1 | 7.4, 3.4 | 9 nov | 9 nov | 4 |
+| 7.5 | Integración en carcasas | Arturo, Diego | 1 | 7.4, 3.4 | 9 nov | 9 nov | 4 |
 | 7.6 | Estabilidad 24 h y corte de energía (con PCB y carcasas) | Arturo | 2 | 7.5, 4.8, 4.9 | 10 nov | 11 nov | 4 |
 | 7.7 | Pruebas de fallo (WiFi, reinicio de gateway, sin internet, flama) | Arturo (apoyo de Luis y Priscila) | 2 | 7.6 | 12 nov | 13 nov | 4 |
 | 7.8 | Regresión final = congelamiento de funciones | Arturo, Luis, Priscila | 1 | 7.7, 6.5 | 16 nov | 16 nov | 4 |
@@ -69,5 +69,7 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 10 nov | El reporte final, diapositivas y manual (8.2) los hace **Priscila** y los revisa Arturo | 8.2 (#43) | Reparto de carga: Arturo coordina la integración y las pruebas |
 | 10 nov | Los ensayos generales (8.3 y 8.4) los coordina **Priscila**; el stand (8.5), **Arturo y Priscila** | 8.3, 8.4, 8.5 (#44, #45, #46) | Reparto de responsables para la entrega |
 | 10 nov | 8.5 queda solo como **stand**: no se compran repuestos ni una microSD de respaldo y no hay empaque | 8.5 (#46) | Evitar más gastos. Riesgo aceptado: si falla la microSD o un módulo el día del concurso no hay reemplazo; la contingencia es el hotspot y el Node-RED de la laptop |
+| 10 nov | 6.5 queda como umbrales **teóricos** con fuente (ASHRAE, ISO 9223, OMS, EPA, Greenspan, Plantower); no se calibran en sitios reales. La hace **Arturo** | 6.5 (#34) | No hay tiempo ni acceso a sitios reales para pruebas largas |
+| 10 nov | La integración en carcasas (7.5) la hacen **Arturo y Diego** | 7.5 (#38) | Disponibilidad del equipo |
 
 Las fechas de la tabla son la línea base original; el avance real está en los issues.

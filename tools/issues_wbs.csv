@@ -351,8 +351,8 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-10-23,2026-10-26,2,6.3,10
-[6.5] Umbral inicial del índice de dosis (Arturo configura),"**ID WBS:** 6.5
-**Responsable:** Priscila
+"[6.5] Umbrales teóricos de los índices de mantenimiento, con fuentes","**ID WBS:** 6.5
+**Responsable:** Arturo
 **Duración:** 2 días hábiles
 **Predecesoras:** 6.4, 4.7
 **Inicio planeado:** 2026-11-10
@@ -361,7 +361,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Priscila,2026-11-10,2026-11-11,2,"6.4, 4.7",6
+",fase-6-nodo-ambiente,Fase 6: Nodo ambiente,Arturo,2026-11-10,2026-11-11,2,"6.4, 4.7",6
 [7.1] E2E de desarrollo: nodos → broker en laptop → dashboard,"**ID WBS:** 7.1
 **Responsable:** Arturo, Luis, Priscila
 **Duración:** 2 días hábiles
@@ -396,7 +396,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-7-integracion,Fase 7: Integración,"Arturo, Diego",2026-11-04,2026-11-06,3,"2.9, 7.2, 5.5, 6.4",4
 [7.5] Integración en carcasas,"**ID WBS:** 7.5
-**Responsable:** Diego, Luis, Priscila
+**Responsable:** Arturo, Diego
 **Duración:** 1 días hábiles
 **Predecesoras:** 7.4, 3.4
 **Inicio planeado:** 2026-11-09
@@ -405,7 +405,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-7-integracion,Fase 7: Integración,"Diego, Luis, Priscila",2026-11-09,2026-11-09,1,"7.4, 3.4",4
+",fase-7-integracion,Fase 7: Integración,"Arturo, Diego",2026-11-09,2026-11-09,1,"7.4, 3.4",4
 [7.6] Estabilidad 24 h y corte de energía (con PCB y carcasas),"**ID WBS:** 7.6
 **Responsable:** Arturo
 **Duración:** 2 días hábiles
