@@ -1,12 +1,13 @@
 # Carcasas
 
 - **Responsable:** Diego. Tareas 3.1 a 3.4.
-- **Propósito:** Las carcasas se adaptan a las dimensiones finales de las PCB para alojar y proteger el nodo rack, las PCB de sensores y el nodo ambiente.
+- **Propósito:** alojar y proteger el nodo rack, las PCB de sensores y el nodo ambiente.
+- **Decisión (23 oct):** se usan **carcasas genéricas compradas** y se adaptan a las PCB finales (cortes para USB, OLED y sensores; fijación de las PCB). No se diseñan ni se imprimen. La Orange Pi usa la caja de acrílico que vino con la placa; su antena (conector u.FL) debe quedar fija y lejos de metal (ver `gateway/orangepi/README.md`).
 
 ## Contenido de esta carpeta
 
-En este directorio se documentan las carcasas realizadas mediante especificaciones en Markdown e imágenes:
+En este directorio se documentan las carcasas compradas y su adaptación:
 
 - **Dimensiones y medidas:** cotas generales, fijación de las PCB y aberturas de ventilación/conectores.
-- **Materiales y parámetros de fabricación:** material empleado, espesores y acabado.
-- `imagenes/`: fotografías y capturas de las carcasas diseñadas y ensambladas.
+- **Modelo comprado y adaptaciones:** proveedor, modelo y medidas de cada carcasa, y los cortes o fijaciones hechos.
+- `imagenes/`: fotografías de las carcasas compradas, adaptadas y ensambladas.

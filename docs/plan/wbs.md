@@ -17,10 +17,10 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 2.7 | Pedido y fabricación de PCB (2 unidades de cada diseño, un lote) | Diego (espera) | 8 | 2.6 | 20 oct | 29 oct | 4 |
 | 2.8 | Ensamble y soldadura (through-hole y sockets) | Diego | 1 | 2.7 | 30 oct | 30 oct | 4 |
 | 2.9 | Prueba eléctrica (continuidad, 3V3/5V, escaneo I2C) | Diego + Sebastián | 2 | 2.8 | 2 nov | 3 nov | 4 |
-| **3. Carcasas** | | | | | | | |
-| 3.1 | Diseño CAD de carcasas (dimensiones provisionales) | Diego | 6 | 2.1 | 9 oct | 16 oct | 13 |
+| **3. Carcasas** (cambio de plan, 23 oct: se compran carcasas genéricas y se adaptan; ya no se diseñan ni se imprimen) | | | | | | | |
+| 3.1 | Selección y compra de carcasas genéricas | Diego | 6 | 2.1 | 9 oct | 16 oct | 13 |
 | 3.2 | Ajuste de carcasas a dimensiones finales | Diego | 1 | 2.6, 3.1 | 20 oct | 20 oct | 12 |
-| 3.3 | Impresión/fabricación de carcasas | Diego (máquina) | 4 | 3.2 | 21 oct | 26 oct | 12 |
+| 3.3 | Adaptación de carcasas compradas (cortes y fijación de PCB) | Diego | 4 | 3.2 | 21 oct | 26 oct | 12 |
 | 3.4 | Prueba de ajuste de PCB y cableado en carcasa | Diego | 1 | 2.8, 3.3 | 4 nov | 4 nov | 6 |
 | **4. Gateway y Node-RED** | | | | | | | |
 | 4.1 | Broker + Node-RED en laptop con el contrato v1 | Arturo | 2 | 1.2 | 5 oct | 6 oct | 15 |
@@ -58,3 +58,11 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | 8.3 | Ensayo general 1 (guion de 6 pasos) | Todos | 1 | 7.8, 8.2 | 23 nov | 23 nov | 0 |
 | 8.4 | Ensayo general 2 con cronómetro | Todos | 1 | 8.3 | 24 nov | 24 nov | 0 |
 | 8.5 | Stand, repuestos, microSD de respaldo y empaque | Todos | 1 | 8.4 | 25 nov | 25 nov | 0 |
+
+## Cambios al plan
+
+| Fecha | Cambio | Tareas | Motivo |
+| --- | --- | --- | --- |
+| 23 oct | Las carcasas se **compran** (genéricas) y se **adaptan**; ya no hay diseño CAD ni impresión 3D. La Orange Pi usa la caja de acrílico que vino con la placa. Diego ya compró las carcasas | 3.1, 3.3 (issues #13 y #15) | Menos tiempo y riesgo que diseñar e imprimir; la impresión dependía de una máquina |
+
+Las fechas de la tabla son la línea base original; el avance real está en los issues.

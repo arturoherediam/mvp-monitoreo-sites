@@ -120,7 +120,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-2-hardware-pcb,Fase 2: Hardware y PCB,Diego + Sebastián,2026-11-02,2026-11-03,2,2.8,4
-[3.1] Diseño CAD de carcasas (dimensiones provisionales),"**ID WBS:** 3.1
+[3.1] Selección y compra de carcasas genéricas,"**ID WBS:** 3.1
 **Responsable:** Diego
 **Duración:** 6 días hábiles
 **Predecesoras:** 2.1
@@ -142,8 +142,8 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-3-carcasas,Fase 3: Carcasas,Diego,2026-10-20,2026-10-20,1,"2.6, 3.1",12
-[3.3] Impresión/fabricación de carcasas,"**ID WBS:** 3.3
-**Responsable:** Diego (máquina)
+[3.3] Adaptación de carcasas compradas (cortes y fijación de PCB),"**ID WBS:** 3.3
+**Responsable:** Diego
 **Duración:** 4 días hábiles
 **Predecesoras:** 3.2
 **Inicio planeado:** 2026-10-21
@@ -152,7 +152,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-3-carcasas,Fase 3: Carcasas,Diego (máquina),2026-10-21,2026-10-26,4,3.2,12
+",fase-3-carcasas,Fase 3: Carcasas,Diego,2026-10-21,2026-10-26,4,3.2,12
 [3.4] Prueba de ajuste de PCB y cableado en carcasa,"**ID WBS:** 3.4
 **Responsable:** Diego
 **Duración:** 1 días hábiles
