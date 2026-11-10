@@ -7,22 +7,22 @@
 #include <Adafruit_SSD1306.h>
 #include "secrets.h"
 
-#define FW_VERSION "1.0.0"
+#define FW_VERSION "1.1.0"
 
 // ---------- Configuración ----------
-constexpr bool     USAR_RED = true;               // true cuando ya haya broker MQTT
+constexpr bool     USAR_RED = true;               
 constexpr uint8_t  MUX_ADDR = 0x70, SHT_ADDR = 0x44, OLED_ADDR = 0x3C;
-constexpr uint8_t  PIN_SDA = 21, PIN_SCL = 22;
-constexpr uint8_t  PIN_FLAMA = 34;                 // solo entrada, sin pull-up interno
+constexpr uint8_t  PIN_SDA = 22, PIN_SCL = 21;
+constexpr uint8_t  PIN_FLAMA = 18;                 // solo entrada, sin pull-up interno
 constexpr bool     FLAMA_ACTIVA_EN_BAJO = true;    // módulo LM393: DO = LOW con flama
 constexpr uint8_t  CANAL_A = 2;                    // SHT41 posición A -> SD2/SC2
-constexpr uint8_t  CANAL_B = 0;                    // SHT41 posición B -> SD0/SC0
+constexpr uint8_t  CANAL_B = 3;                    // SHT41 posición B -> SD3/SC3
 constexpr uint32_t PERIODO_DATOS_MS = 2000;
 constexpr uint32_t REPETIR_FLAMA_MS = 1000;
 constexpr uint32_t ANTIRREBOTE_MS   = 50;
 constexpr uint8_t  MARGEN_X = 3;                   // píxeles desde el borde izquierdo de la OLED
 constexpr uint8_t  MARGEN_Y = 4;                   // píxeles desde el borde superior de la OLED
-constexpr uint32_t I2C_HZ   = 100000;              // si la OLED sale con ruido, prueba 50000
+constexpr uint32_t I2C_HZ   = 100000;              
 
 const char* TOPIC_DATOS = "site/datos";
 String topicEstado = String("site/estado/") + NODE_ID;
