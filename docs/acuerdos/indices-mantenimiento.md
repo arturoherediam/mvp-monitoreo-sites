@@ -53,18 +53,24 @@ Lecturas de partículas con HR > 75 % se marcan como **poco confiables** (las pa
 
 ## Umbrales
 
-Los acumulados **no tienen norma**: son valores iniciales que se ajustan en la tarea 6.5. Con el tiempo acelerado (simulación o demo) se usan umbrales de demostración, y se declara al jurado.
+Umbrales **teóricos** (tarea 6.5, 10 nov): cada valor tiene su fuente o se declara como criterio del equipo. **No se calibraron en sitios de servidores reales**; validarlos en campo es trabajo futuro y se dice así al jurado. Con el tiempo acelerado (simulación o demo) se usan los umbrales de demostración.
 
-| Índice | Real | Demostración (tiempo acelerado) |
-|---|---|---|
-| Envejecimiento | Factor promedio 1.5× (amarillo) y 3× (rojo), evaluado desde 24 h de datos | Igual, desde 1 h |
-| Corrosión | 360 h con HR > 60 %, 72 h > 75 %, 24 h con brisa marina | 3 h, 1 h y 0.5 h |
-| Polvo | 75 000 µg·h/m³ (unos 3 meses a 35 µg/m³; intervalo común de limpieza) | 300 µg·h/m³ |
-| Eventos térmicos | 600 min > 27 °C, 60 min > 32 °C, 3 subidas rápidas | 60 min, 30 min, 1 subida |
-| Condensación | 60 min | 30 min |
-| Sensor de partículas | > 5 % de tramas perdidas o 10 imposibles en 10 min; 26 280 h de uso (~3 años) | > 5 % o 3 imposibles en 1 min |
+Tipo: **Fuente** = el número sale de una norma, guía o hoja de datos. **Derivado** = se calcula a partir de valores con fuente. **Criterio** = ninguna norma lo define; es decisión del equipo.
 
-Amarillo desde el 70 % del umbral; rojo al 100 %.
+| Índice | Real (rojo) | Fuente o razón | Tipo | Demostración |
+|---|---|---|---|---|
+| Envejecimiento | Factor promedio 1.5× (amarillo) y 3× (rojo), desde 24 h de datos | Modelo de Peck (Ea 0.79 eV, n ≈ 2.7) [1]. 2× = borde de lo recomendado por ASHRAE (27 °C / 60 %) [2]; 3× ≈ 27 °C con 70 % o 25 °C con 75 % (la sal se activa) [2, 4] | Derivado | Igual, desde 1 h |
+| Corrosión, HR > 75 % | 10 h | ISO 9223: tiempo de humectación de un interior con clima controlado τ1 ≤ 10 h al año [5]. 75 % = delicuescencia del NaCl, 75.3 % a 25 °C [4] | Fuente | 1 h |
+| Corrosión, HR > 60 % | 250 h | ISO 9223: τ2 ≤ 250 h al año, interior sin control de clima [5]. 60 % = humedad de delicuescencia del polvo según ASHRAE [3] | Fuente | 3 h |
+| Corrosión, brisa marina | 24 h con viento del mar ≥ 15 km/h | 15 km/h ≈ 4 m/s, inicio de la espuma (*whitecaps*) que produce el aerosol marino [6]. Las 24 h: criterio | Fuente (viento) y criterio (horas) | 0.5 h |
+| Polvo | 32 400 µg·h/m³ = 90 días a 15 µg/m³ | Guía anual de PM10 de la OMS 2021: 15 µg/m³ [7]; 90 días = intervalo de limpieza trimestral (criterio). El PMS5003 tiene ±10 µg/m³ abajo de 100 µg/m³ [10]: la dosis es aproximada | Fuente y criterio | 300 µg·h/m³ |
+| Eventos térmicos | 600 min > 27 °C, 60 min > 32 °C, 3 subidas rápidas | Límites de ASHRAE: recomendado 18–27 °C, permitido A1 15–32 °C, máximo 5 °C en 15 min [2]. ASHRAE **no define** cuánto tiempo se puede estar en el rango permitido ("periodos cortos sin definir"; su herramienta es el factor X) [8]: los minutos son criterio | Fuente (límites) y criterio (minutos) | 60 min, 30 min, 1 subida |
+| Condensación | 60 min con margen < 3 °C | Margen de 3 °C sobre el punto de rocío de ISO 8502-4 [9]. Los 60 min son criterio, más estrictos que τ1 de ISO 9223 [5] | Fuente (margen) y criterio (minutos) | 30 min |
+| Sensor de partículas | > 25 % de tramas perdidas o 10 imposibles en 10 min; 26 280 h de uso | 26 280 h = MTTF ≥ 3 años de Plantower [10]. 25 % = la EPA exige al menos 75 % de datos para un promedio válido [11]. "Imposible" = PM1.0 > PM2.5 o PM2.5 > PM10, porque cada fracción incluye a la menor. Las 10 imposibles: criterio | Fuente y criterio | > 25 % o 3 imposibles en 1 min |
+
+Otros valores con fuente: subida rápida > 5 °C en 15 min [2]; subida local si la otra posición sube menos de 2.5 °C (la mitad del límite de ASHRAE, derivado); episodio de polvo con PM10 ≥ 150 µg/m³ (límite de 24 h de la EPA) [11]; partículas poco confiables con HR > 75 %, porque el sensor Plantower lee de más [12]. Amarillo desde el 70 % del umbral (criterio).
+
+Cambios del 10 nov (6.5): corrosión > 75 % de 72 h a 10 h, > 60 % de 360 h a 250 h, polvo de 75 000 a 32 400 µg·h/m³ (los anteriores no tenían fuente) y tramas perdidas de 5 % a 25 %.
 
 ## Modo simulación
 
@@ -99,8 +105,16 @@ Instalación, Telegram, modo demo y pruebas: [gateway/node-red/indices-4.7/READM
 
 ## Referencias
 
-- ASHRAE TC 9.9, *Thermal Guidelines*, 5.ª ed.: rangos recomendado (18–27 °C) y permitido A1 (15–32 °C), cambio máximo de 5 °C en 15 min.
-- Límites ASHRAE de contaminación (publicados por Lenovo): ISO 14644-1 clase 8, humedad de delicuescencia > 60 %.
-- Peck (1986): modelo temperatura-humedad.
-- ISO 9223: concepto de tiempo de humectación como base de la corrosividad atmosférica.
-- Open-Meteo: datos de viento y pronóstico (CC BY 4.0).
+1. Peck, D. S. (1986). Comprehensive model for humidity testing correlation. *IEEE International Reliability Physics Symposium*, 44–50. Parámetros típicos: n de 2.5 a 3 y Ea de 0.7 a 0.9 eV.
+2. ASHRAE TC 9.9, *Thermal Guidelines for Data Processing Environments*, 5.ª ed. (2021): recomendado 18–27 °C y punto de rocío −9 a 15 °C con HR máxima de 60 %; permitido A1 15–32 °C; cambio máximo de 20 °C por hora y de 5 °C en 15 min.
+3. ASHRAE TC 9.9, *Gaseous and Particulate Contamination Guidelines for Data Centers* (2011), publicados por fabricantes (por ejemplo Lenovo): limpieza ISO 14644-1 clase 8 y humedad de delicuescencia del polvo > 60 %.
+4. Greenspan, L. (1977). Humidity fixed points of binary saturated aqueous solutions. *Journal of Research of the National Bureau of Standards*, 81A(1), 89–96. NaCl: 75.47 % a 20 °C, 75.29 % a 25 °C, 75.09 % a 30 °C.
+5. ISO 9223 (1992; revisada en 2012). Corrosión de metales: corrosividad de la atmósfera. Tiempo de humectación: horas con HR > 80 % y T > 0 °C; τ1 ≤ 10 h/año (interior con clima controlado), τ2 ≤ 250 h/año (interior sin control de clima).
+6. O'Dowd, C. D. y de Leeuw, G. (2007). Marine aerosol production: a review of the current knowledge. *Phil. Trans. R. Soc. A*, 365, 1753–1774: la espuma empieza con viento de unos 4 m/s.
+7. OMS (2021). *Global Air Quality Guidelines*: PM10 15 µg/m³ anual y 45 µg/m³ en 24 h.
+8. Upsite Technologies, serie sobre los rangos recomendado y permitido de ASHRAE (rango permitido para "periodos cortos sin definir" y factor X).
+9. ISO 8502-4: la superficie debe estar al menos 3 °C arriba del punto de rocío.
+10. Plantower, hoja de datos del PMS5003: MTTF ≥ 3 años; error de ±10 µg/m³ de 0 a 100 µg/m³ y ±10 % de 100 a 500 µg/m³.
+11. EPA de EE. UU.: NAAQS de PM10, 150 µg/m³ en 24 h; 40 CFR 50, apéndice N: un promedio de 24 h es válido con al menos 75 % de los datos.
+12. Jayaratne, R. et al. (2018). The influence of humidity on the performance of a low-cost air particle mass sensor and the effect of atmospheric fog. *Atmospheric Measurement Techniques*, 11, 4883–4890: aumentos importantes con HR arriba de ~75 %.
+13. Open-Meteo: datos de viento y pronóstico (CC BY 4.0).

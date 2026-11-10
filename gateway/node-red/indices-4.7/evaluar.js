@@ -4,15 +4,16 @@
 //   topic 'site/estado/<node_id>'  (MQTT directo: online / offline)
 //   topic 'refrescar'              (el simulador pide redibujar la página al iniciar o detener)
 // Salidas: 1 -> página de mantenimiento   2 -> mensajes para Telegram { payload: { text } }
-// Umbrales: los acumulados NO son norma. REAL = valores iniciales (se ajustan en la tarea 6.5);
+// Umbrales: los acumulados NO son norma. REAL = umbrales teóricos con fuente (tarea 6.5, ver
+// docs/acuerdos/indices-mantenimiento.md: fuente y tipo de cada valor; no calibrados en sitios reales);
 // DEMO = se usan cuando el tiempo va acelerado (simulación o ACELERACION > 1) y se declaran al jurado.
 const U_REAL = {
     envejecimiento: { amarillo: 1.5, rojo: 3, horas_min: 24 },   // factor promedio vs 25 °C / 50 %
-    corrosion: { h_hr60: 360, h_hr75: 72, h_brisa: 24 },         // horas
-    polvo: { ugh: 75000 },                                        // µg·h/m³ ≈ 3 meses a 35 µg/m³ de PM10
+    corrosion: { h_hr60: 250, h_hr75: 10, h_brisa: 24 },         // horas; ISO 9223: τ1 ≤ 10 h/año, τ2 ≤ 250 h/año
+    polvo: { ugh: 32400 },                                        // µg·h/m³ = 90 días a 15 µg/m³ (guía anual de PM10, OMS 2021)
     termico: { min27: 600, min32: 60, subidas: 3 },
     condensacion: { min: 60 },
-    pms: { horas: 26280, perdidas_pct: 5, imposibles: 10, min_fijo: 60, tramas_min: 12 }   // 26 280 h ≈ 3 años
+    pms: { horas: 26280, perdidas_pct: 25, imposibles: 10, min_fijo: 60, tramas_min: 12 }  // 26 280 h = MTTF ≥ 3 años (Plantower); 25 % = completitud mínima 75 % (EPA)
 };
 const U_DEMO = {
     envejecimiento: { amarillo: 1.5, rojo: 3, horas_min: 1 },
@@ -20,7 +21,7 @@ const U_DEMO = {
     polvo: { ugh: 300 },
     termico: { min27: 60, min32: 30, subidas: 1 },
     condensacion: { min: 30 },
-    pms: { horas: 26280, perdidas_pct: 5, imposibles: 3, min_fijo: 60, tramas_min: 6 }
+    pms: { horas: 26280, perdidas_pct: 25, imposibles: 3, min_fijo: 60, tramas_min: 6 }
 };
 const AMARILLO = 0.7;               // carga ≥ 70 % del umbral
 const ESPERA_MS = 10 * 60000, ESPERA_FLAMA_MS = 2 * 60000, ESPERA_EPISODIO_MS = 30 * 60000;
