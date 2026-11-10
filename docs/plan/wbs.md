@@ -1,6 +1,6 @@
 # WBS del MVP
 
-Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). La holgura se mide contra el 20 de noviembre; los ensayos y el empaque (8.3 a 8.5) tienen fecha fija del 23 al 25 de noviembre. Los días son hábiles de lunes a viernes, incluidos el 2 y el 16 de noviembre. La cadena de PCB (2.1 a 2.9 y 7.4 a 7.8) es la ruta crítica, con 4 días hábiles de holgura.
+Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). La holgura se mide contra el 20 de noviembre; los ensayos y el stand (8.3 a 8.5) tienen fecha fija del 23 al 25 de noviembre. Los días son hábiles de lunes a viernes, incluidos el 2 y el 16 de noviembre. La cadena de PCB (2.1 a 2.9 y 7.4 a 7.8) es la ruta crítica, con 4 días hábiles de holgura.
 
 | ID | Tarea | Responsable | Días háb. | Predecesoras | Inicio | Fin | Holgura (días háb.) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -47,22 +47,27 @@ Son 46 tareas en 8 fases (los IDs 1.3 y 7.3 se eliminaron y no se reutilizan). L
 | **7. Integración y pruebas** | | | | | | | |
 | 7.1 | E2E de desarrollo: nodos → broker en laptop → dashboard | Arturo, Luis, Priscila | 2 | 5.3, 6.3, 4.3 | 21 oct | 22 oct | 10 |
 | 7.2 | Migrar a la Orange Pi y probar con nodos reales | Arturo, Luis, Priscila | 2 | 4.6, 7.1 | 27 oct | 28 oct | 8 |
-| 7.4 | Integración con PCB finales (flashear y probar ambos nodos) | Luis, Priscila, Sebastián | 3 | 2.9, 7.2, 5.5, 6.4 | 4 nov | 6 nov | 4 |
+| 7.4 | Integración con PCB finales (flashear y probar ambos nodos) | Arturo, Diego | 3 | 2.9, 7.2, 5.5, 6.4 | 4 nov | 6 nov | 4 |
 | 7.5 | Integración en carcasas | Diego, Luis, Priscila | 1 | 7.4, 3.4 | 9 nov | 9 nov | 4 |
 | 7.6 | Estabilidad 24 h y corte de energía (con PCB y carcasas) | Arturo | 2 | 7.5, 4.8, 4.9 | 10 nov | 11 nov | 4 |
 | 7.7 | Pruebas de fallo (WiFi, reinicio de gateway, sin internet, flama) | Arturo (apoyo de Luis y Priscila) | 2 | 7.6 | 12 nov | 13 nov | 4 |
 | 7.8 | Regresión final = congelamiento de funciones | Arturo, Luis, Priscila | 1 | 7.7, 6.5 | 16 nov | 16 nov | 4 |
 | **8. Documentación y entrega** | | | | | | | |
 | 8.1 | Documentación técnica por módulo | Todos | 6 | 7.2 | 9 nov | 16 nov | 1 |
-| 8.2 | Reporte final, diapositivas y manual de arranque (consolida Arturo) | Todos | 3 | 8.1 | 17 nov | 19 nov | 1 |
-| 8.3 | Ensayo general 1 (guion de 6 pasos) | Todos | 1 | 7.8, 8.2 | 23 nov | 23 nov | 0 |
-| 8.4 | Ensayo general 2 con cronómetro | Todos | 1 | 8.3 | 24 nov | 24 nov | 0 |
-| 8.5 | Stand, repuestos, microSD de respaldo y empaque | Todos | 1 | 8.4 | 25 nov | 25 nov | 0 |
+| 8.2 | Reporte final, diapositivas y manual de arranque (Priscila; revisa Arturo) | Priscila (revisa Arturo) | 3 | 8.1 | 17 nov | 19 nov | 1 |
+| 8.3 | Ensayo general 1 (guion de 6 pasos) | Priscila | 1 | 7.8, 8.2 | 23 nov | 23 nov | 0 |
+| 8.4 | Ensayo general 2 con cronómetro | Priscila | 1 | 8.3 | 24 nov | 24 nov | 0 |
+| 8.5 | Stand | Arturo, Priscila | 1 | 8.4 | 25 nov | 25 nov | 0 |
 
 ## Cambios al plan
 
 | Fecha | Cambio | Tareas | Motivo |
 | --- | --- | --- | --- |
 | 23 oct | Las carcasas se **compran** (genéricas) y se **adaptan**; ya no hay diseño CAD ni impresión 3D. La Orange Pi usa la caja de acrílico que vino con la placa. Diego ya compró las carcasas | 3.1, 3.3 (issues #13 y #15) | Menos tiempo y riesgo que diseñar e imprimir; la impresión dependía de una máquina |
+
+| 10 nov | La integración con las PCB finales (7.4) la hacen **Arturo y Diego** | 7.4 (#37) | Disponibilidad del equipo; se hace el 10 nov |
+| 10 nov | El reporte final, diapositivas y manual (8.2) los hace **Priscila** y los revisa Arturo | 8.2 (#43) | Reparto de carga: Arturo coordina la integración y las pruebas |
+| 10 nov | Los ensayos generales (8.3 y 8.4) los coordina **Priscila**; el stand (8.5), **Arturo y Priscila** | 8.3, 8.4, 8.5 (#44, #45, #46) | Reparto de responsables para la entrega |
+| 10 nov | 8.5 queda solo como **stand**: no se compran repuestos ni una microSD de respaldo y no hay empaque | 8.5 (#46) | Evitar más gastos. Riesgo aceptado: si falla la microSD o un módulo el día del concurso no hay reemplazo; la contingencia es el hotspot y el Node-RED de la laptop |
 
 Las fechas de la tabla son la línea base original; el avance real está en los issues.

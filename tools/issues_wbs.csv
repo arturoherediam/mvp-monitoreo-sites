@@ -385,7 +385,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-7-integracion,Fase 7: Integración,"Arturo, Luis, Priscila",2026-10-27,2026-10-28,2,"4.6, 7.1",8
 [7.4] Integración con PCB finales (flashear y probar ambos nodos),"**ID WBS:** 7.4
-**Responsable:** Luis, Priscila, Sebastián
+**Responsable:** Arturo, Diego
 **Duración:** 3 días hábiles
 **Predecesoras:** 2.9, 7.2, 5.5, 6.4
 **Inicio planeado:** 2026-11-04
@@ -394,7 +394,7 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-7-integracion,Fase 7: Integración,"Luis, Priscila, Sebastián",2026-11-04,2026-11-06,3,"2.9, 7.2, 5.5, 6.4",4
+",fase-7-integracion,Fase 7: Integración,"Arturo, Diego",2026-11-04,2026-11-06,3,"2.9, 7.2, 5.5, 6.4",4
 [7.5] Integración en carcasas,"**ID WBS:** 7.5
 **Responsable:** Diego, Luis, Priscila
 **Duración:** 1 días hábiles
@@ -450,8 +450,8 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
 ",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-09,2026-11-16,6,7.2,1
-"[8.2] Reporte final, diapositivas y manual de arranque (consolida Arturo)","**ID WBS:** 8.2
-**Responsable:** Todos
+"[8.2] Reporte final, diapositivas y manual de arranque (Priscila; revisa Arturo)","**ID WBS:** 8.2
+**Responsable:** Priscila (revisa Arturo)
 **Duración:** 3 días hábiles
 **Predecesoras:** 8.1
 **Inicio planeado:** 2026-11-17
@@ -460,9 +460,9 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-17,2026-11-19,3,8.1,1
+",fase-8-entrega,Fase 8: Entrega,Priscila (revisa Arturo),2026-11-17,2026-11-19,3,8.1,1
 [8.3] Ensayo general 1 (guion de 6 pasos),"**ID WBS:** 8.3
-**Responsable:** Todos
+**Responsable:** Priscila
 **Duración:** 1 días hábiles
 **Predecesoras:** 7.8, 8.2
 **Inicio planeado:** 2026-11-23
@@ -471,9 +471,9 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-23,2026-11-23,1,"7.8, 8.2",0
+",fase-8-entrega,Fase 8: Entrega,Priscila,2026-11-23,2026-11-23,1,"7.8, 8.2",0
 [8.4] Ensayo general 2 con cronómetro,"**ID WBS:** 8.4
-**Responsable:** Todos
+**Responsable:** Priscila
 **Duración:** 1 días hábiles
 **Predecesoras:** 8.3
 **Inicio planeado:** 2026-11-24
@@ -482,9 +482,9 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-24,2026-11-24,1,8.3,0
-"[8.5] Stand, repuestos, microSD de respaldo y empaque","**ID WBS:** 8.5
-**Responsable:** Todos
+",fase-8-entrega,Fase 8: Entrega,Priscila,2026-11-24,2026-11-24,1,8.3,0
+[8.5] Stand,"**ID WBS:** 8.5
+**Responsable:** Arturo, Priscila
 **Duración:** 1 días hábiles
 **Predecesoras:** 8.4
 **Inicio planeado:** 2026-11-25
@@ -493,4 +493,4 @@ title,body,labels,milestone,owner,start,end,dias_habiles,predecesoras,holgura
 
 ## Criterio de terminado
 - [ ] (completar al ratificar el alcance en el kickoff)
-",fase-8-entrega,Fase 8: Entrega,Todos,2026-11-25,2026-11-25,1,8.4,0
+",fase-8-entrega,Fase 8: Entrega,"Arturo, Priscila",2026-11-25,2026-11-25,1,8.4,0

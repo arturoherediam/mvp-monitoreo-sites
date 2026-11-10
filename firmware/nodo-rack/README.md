@@ -14,22 +14,24 @@ Mide temperatura y humedad en dos posiciones del rack, vigila la flama y publica
 - Muestra en la OLED las lecturas de A y B, el estado de la red y la flama.
 - Si el bus I²C se atora, lo libera (9 pulsos de reloj) y reintenta.
 
-## Conexiones (PROVISIONALES)
+## Conexiones (PCB final)
 
-> Pueden cambiar con el diseño de las PCB (tareas 2.2, 2.3 y la revisión cruzada 2.6, Sebastián y Diego). Si cambian, actualiza esta tabla **y** las constantes al inicio de `src/main.cpp` en el mismo pull request.
+> Coinciden con el esquemático del PCB final (PR #65, ver `docs/acuerdos/hardware.md`). Si vuelven a cambiar, actualiza esta tabla **y** las constantes al inicio de `src/main.cpp` en el mismo pull request.
+>
+> **Ojo:** un nodo de banco cableado con los pines anteriores (SDA 21, SCL 22, flama 34, B en canal 0) ya no funciona con este firmware.
 
 | Señal | ESP32 | Notas |
 | --- | --- | --- |
-| I²C SDA | GPIO 21 | 100 kHz (`I2C_HZ`) |
-| I²C SCL | GPIO 22 | |
-| Flama YG1006 (salida DO) | GPIO 34 | Solo entrada, sin pull-up interno. Activa en bajo (LOW = flama) |
+| I²C SDA | GPIO 22 | 100 kHz (`I2C_HZ`) |
+| I²C SCL | GPIO 21 | |
+| Flama YG1006 (salida DO) | GPIO 18 | Entrada digital; el módulo trae su propia resistencia de pull-up. Activa en bajo (LOW = flama) |
 
 | Dispositivo I²C | Dirección | Canal del TCA9548A |
 | --- | --- | --- |
 | TCA9548A | `0x70` | — |
 | OLED SSD1306 | `0x3C` | Bus principal (fuera del multiplexor) |
 | SHT41 posición **A** (arriba, con el YG1006) | `0x44` | Canal **2** (SD2/SC2) |
-| SHT41 posición **B** | `0x44` | Canal **0** (SD0/SC0) |
+| SHT41 posición **B** | `0x44` | Canal **3** (SD3/SC3) |
 
 Los dos SHT41 tienen la misma dirección; por eso van en canales distintos del multiplexor. La posición A va arriba del rack y la B más abajo, bien separadas, para que el gateway distinga una subida de todo el rack de una local (ver `docs/acuerdos/indices-mantenimiento.md`).
 

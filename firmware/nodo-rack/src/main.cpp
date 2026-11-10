@@ -13,7 +13,7 @@
 constexpr bool     USAR_RED = true;               
 constexpr uint8_t  MUX_ADDR = 0x70, SHT_ADDR = 0x44, OLED_ADDR = 0x3C;
 constexpr uint8_t  PIN_SDA = 22, PIN_SCL = 21;
-constexpr uint8_t  PIN_FLAMA = 18;                 // solo entrada, sin pull-up interno
+constexpr uint8_t  PIN_FLAMA = 18;                 // entrada digital; el módulo trae su pull-up
 constexpr bool     FLAMA_ACTIVA_EN_BAJO = true;    // módulo LM393: DO = LOW con flama
 constexpr uint8_t  CANAL_A = 2;                    // SHT41 posición A -> SD2/SC2
 constexpr uint8_t  CANAL_B = 3;                    // SHT41 posición B -> SD3/SC3
