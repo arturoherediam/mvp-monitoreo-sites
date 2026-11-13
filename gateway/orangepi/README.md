@@ -34,6 +34,7 @@ Las carpetas `etc/` y `usr/` tienen **los archivos exactos** que se aplicaron en
 | `etc/systemd/timesyncd.conf.d/mvp-gateway.conf` | Hora solo desde la laptop: la Orange Pi solo tiene internet a través de ella, así que un respaldo de internet no sirve |
 | `etc/ssh/sshd_config.d/10-mvp-gateway.conf` | Solo llave SSH, sin root y sin contraseñas |
 | `etc/hostapd/hostapd.conf.example` | Plantilla del hotspot (sin SSID ni contraseña reales) |
+| `usr/local/sbin/prueba-estabilidad.sh` | Prueba de 24 h con corte de energía (7.6): `inicio`, `corte` y `final`; solo lee y da OK / REVISA por criterio |
 | `usr/local/sbin/revisar-gateway.sh` | Revisión rápida antes de presentar (solo lee); ver [`../scripts`](../scripts/README.md) |
 | `usr/local/sbin/hotspot-watchdog.sh` y `etc/systemd/system/hotspot-watchdog.{service,timer}` | Vigilancia del hotspot (ver fase 5) |
 | `etc/systemd/network/30-wlan0-ap.network` | IP fija 10.42.0.1 y servidor DHCP en `wlan0`, sin ruta ni DNS para los nodos (no necesitan internet) |
